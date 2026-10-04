@@ -1,0 +1,7 @@
+@extends('admin.layouts.admin')
+@section('title','Группы')
+@section('page-title','Группы пользователей')
+@section('admin-page','groups')
+@section('content')
+<div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="h5 mb-1">Группы</h2><div class="admin-section-note">Группы доступа — это организационная привязка, а не отдельный RBAC-движок.</div></div><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#groupCreateModal"><i class="bi bi-plus-lg me-1"></i>Новая группа</button></div><section class="admin-surface"><div class="admin-surface__body">@include('admin.partials.filters')<div class="table-responsive mt-3"><table class="table admin-table"><thead><tr><th>Название</th><th>Участники</th><th class="text-end">Действия</th></tr></thead><tbody>@forelse($groups as $group)<tr><td><a class="fw-semibold text-decoration-none" href="{{ route('admin.groups.edit',$group) }}">{{ $group->name }}</a></td><td>{{ $group->users_count }}</td><td class="text-end">@if($group->deleted_at) @include('admin.partials.restore-button',['action'=>route('admin.groups.restore',$group)]) @else <a href="{{ route('admin.groups.edit',$group) }}" class="btn btn-sm btn-light border">Изменить</a> @endif</td></tr>@empty<tr><td colspan="3"><div class="admin-empty">Групп ещё нет.</div></td></tr>@endforelse</tbody></table></div>{{ $groups->links() }}</div></section>@include('admin.partials.create-title-modal',['id'=>'groupCreateModal','title'=>'Новая группа','action'=>route('admin.groups.store')])
+@endsection

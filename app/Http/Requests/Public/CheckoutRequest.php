@@ -1,0 +1,29 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Requests\Public;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+final class CheckoutRequest extends FormRequest
+{
+
+    /**
+     * Determines whether the current request is authorized.
+     * @return bool
+     */
+    public function authorize(): bool
+    {
+        return $this->user() !== null;
+    }
+
+    /**
+     * Returns the validation rules applied to the request.
+     * @return array
+     */
+    public function rules(): array
+    {
+        return ['agree' => ['accepted']];
+    }
+}

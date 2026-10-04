@@ -1,0 +1,7 @@
+@extends('admin.layouts.admin')
+@section('title','Категории курсов')
+@section('page-title','Категории · Курсы')
+@section('admin-page','courses')
+@section('content')
+<div class="d-flex justify-content-between align-items-center mb-3"><div><h2 class="h5 mb-1">Категории курсов</h2><div class="admin-section-note">Глубокое дерево здесь не требуется.</div></div><button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#courseCategoryCreateModal"><i class="bi bi-plus-lg me-1"></i>Новая категория</button></div><section class="admin-surface"><div class="admin-surface__body">@include('admin.partials.filters')<div class="table-responsive mt-3"><table class="table admin-table"><thead><tr><th>Название</th><th>Курсов</th><th class="text-end">Действия</th></tr></thead><tbody>@forelse($categories as $category)<tr><td><a class="fw-semibold text-decoration-none" href="{{ route('admin.courses.categories.edit',$category) }}">{{ $category->name }}</a></td><td>{{ $category->courses_count }}</td><td class="text-end"><a class="btn btn-sm btn-light border" href="{{ route('admin.courses.categories.edit',$category) }}">Изменить</a></td></tr>@empty<tr><td colspan="3"><div class="admin-empty">Категорий ещё нет.</div></td></tr>@endforelse</tbody></table></div>{{ $categories->links() }}</div></section>@include('admin.partials.create-title-modal',['id'=>'courseCategoryCreateModal','title'=>'Новая категория курса','action'=>route('admin.courses.categories.store')])
+@endsection

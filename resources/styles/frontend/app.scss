@@ -1,0 +1,14 @@
+@use "bootstrap/scss/bootstrap" as *;
+@use "bootstrap-icons/font/bootstrap-icons";
+.public-site{background:#fbfaf6;color:#292724}.public-site main{min-height:60vh}.public-site .sale-block{border:1px solid #eadfe4;background:linear-gradient(135deg,#fff,#fbf3f6);border-radius:20px;padding:2rem}.public-site .price{font-size:2rem;font-weight:800;color:#6f2849}.public-site .btn-brand{background:#e91e63;border-color:#e91e63;color:#fff}.public-site .btn-brand:hover{background:#c51162;border-color:#c51162;color:#fff}.public-site .eyebrow{display:inline-flex;padding:.35rem .6rem;border-radius:999px;background:#f3e4ea;color:#8b3d61;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em}.public-site .course-card,.public-site .product-card{height:100%;display:block;color:inherit;text-decoration:none;background:#fff;border:1px solid #ebe7df;border-radius:18px;overflow:hidden;transition:transform .18s,box-shadow .18s}.public-site .course-card:hover,.public-site .product-card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(60,48,36,.08)}.public-site .course-card__body,.public-site .product-card__body{padding:1.1rem 1.15rem}.public-site .course-card img,.public-site .product-card img{width:100%;aspect-ratio:4/3;object-fit:cover}.public-site .course-card__foot,.public-site .product-card__body>div:last-child{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-top:1rem}.public-site .purchase-strip{display:flex;justify-content:space-between;align-items:center;gap:1rem;border:1px solid #eadfe4;background:#fff;padding:1rem 1.15rem;border-radius:16px}.public-site .rich-content img{max-width:100%;height:auto;border-radius:12px}.public-site .rich-content figure{margin:1rem 0}.public-site .section{padding:4rem 0}.public-site .narrow{max-width:1080px}.public-site .detail-hero,.public-site .catalog-hero,.public-site .course-hero{padding:4.5rem 0;background:linear-gradient(135deg,#fbfaf6,#f8edf2)}@media(max-width:767.98px){.public-site .section{padding:2.5rem 0}.public-site .purchase-strip{flex-direction:column;align-items:stretch}}
+
+.auth-choice-card {
+    height: 100%;
+    padding: 2rem;
+    border: 1px solid rgba(26, 33, 42, .08);
+    border-radius: 1.5rem;
+    background: var(--bs-body-bg);
+    box-shadow: 0 1rem 2.5rem rgba(26, 33, 42, .06);
+}
+
+.auth-choice-card p { min-height: 4.5rem; }

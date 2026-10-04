@@ -1,0 +1,7 @@
+@extends('admin.layouts.admin')
+@section('title','Преподаватель · '.$teacher->title)
+@section('page-title','Преподаватель · '.$teacher->title)
+@section('admin-page','teachers')
+@section('content')
+<x-ui.form.container endpoint="{{ route('admin.teachers.update',$teacher) }}" identifier="teacher-{{ $teacher->id }}" :ajax="true" method="PUT" :removable="true" data-delete-endpoint="{{ route('admin.teachers.destroy',$teacher) }}" data-delete-title="{{ $teacher->title }}" data-delete-label="преподавателя"><x-slot:main><section class="admin-surface"><div class="admin-surface__body"><x-ui.form.input name="title" label="Имя / должность" :value="$teacher->title" required/><x-ui.form.input name="motto" label="Короткая фраза" :value="$teacher->motto"/><x-ui.form.textarea name="about" id="teacher-about" label="О преподавателе" :value="$teacher->about"/><x-ui.form.media-dropzone name="avatar" ratio="1x1" :existing-url="($teacher->avatar ? $teacher->avatar_url : null)"/></div></section></x-slot:main><x-slot:aside><div class="admin-aside-stack"><div class="sales-callout"><strong>{{ $teacher->courses_count ?? 0 }} курсов</strong><div class="admin-section-note mt-1">Связь с курсами управляется внутри редактора курса.</div></div></div></x-slot:aside><x-slot:deletionConsequences><ul class="mb-0"><li><i class="bi bi-dot"></i>Курсы сохранятся, связь станет недоступной для новых назначений.</li><li><i class="bi bi-dot"></i>Avatar не удаляется при soft delete.</li></ul></x-slot:deletionConsequences></x-ui.form.container>
+@endsection

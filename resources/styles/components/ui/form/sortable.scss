@@ -1,0 +1,526 @@
+/**
+ * Generic Sortable form component.
+ *
+ * Structure:
+ *
+ * .ui-form-sortable
+ * ├── [data-sortable-root-items]
+ * │   └── [data-sortable-item]
+ * │
+ * └── [data-sortable-groups]
+ *     └── [data-sortable-group]
+ *         ├── [data-sortable-group-header]
+ *         │   ├── [data-sortable-group-handle]
+ *         │   ├── [data-sortable-group-title]
+ *         │   └── [data-sortable-group-actions]
+ *         │
+ *         └── [data-sortable-items]
+ *             └── [data-sortable-item]
+ *
+ * Visual state is intentionally controlled by CSS classes added
+ * by SortableJS integration, rather than by DOM pseudo-state
+ * selectors such as :empty.
+ *
+ * In particular:
+ *
+ *   .is-empty
+ *       Empty item container / drop target.
+ *
+ *   .sortable-ghost
+ *       SortableJS placeholder for the currently dragged element.
+ *
+ *   .sortable-chosen
+ *       Element selected for dragging.
+ *
+ *   .sortable-drag
+ *       Element currently being dragged.
+ */
+
+.ui-form-sortable {
+    // -------------------------------------------------------------------------
+    // Component design tokens.
+    // -------------------------------------------------------------------------
+
+    --sortable-border-color: var(--bs-border-color);
+    --sortable-bg: var(--bs-body-bg);
+    --sortable-container-bg: var(--bs-tertiary-bg);
+    --sortable-secondary-bg: var(--bs-secondary-bg);
+    --sortable-hover-bg: rgba(var(--bs-primary-rgb), 0.04);
+    --sortable-drag-bg: rgba(var(--bs-primary-rgb), 0.08);
+    --sortable-drop-bg: rgba(var(--bs-primary-rgb), 0.03);
+
+    --sortable-transition: 0.15s ease-in-out;
+
+    width: 100%;
+    padding: 0.75rem;
+
+    border: var(--bs-border-width) solid var(--sortable-border-color);
+    border-radius: var(--bs-border-radius);
+    background-color: var(--sortable-container-bg);
+
+    transition:
+        border-color var(--sortable-transition),
+        box-shadow var(--sortable-transition),
+        background-color var(--sortable-transition);
+
+    &:focus-within {
+        border-color: rgba(var(--bs-primary-rgb), 0.45);
+        box-shadow: var(--bs-box-shadow-sm);
+    }
+
+    // -------------------------------------------------------------------------
+    // Root items.
+    //
+    // Root items are elements which are not assigned to any group.
+    // Their DOM order is their serialized position.
+    // -------------------------------------------------------------------------
+
+    &__items {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        min-height: 2.75rem;
+        padding: 0.5rem;
+
+        border: var(--bs-border-width) dashed transparent;
+        border-radius: var(--bs-border-radius);
+        background-color: var(--sortable-bg);
+
+        transition:
+            background-color var(--sortable-transition),
+            border-color var(--sortable-transition);
+
+        /**
+         * Empty root container.
+         *
+         * The actual message is optional for now. The class is still
+         * available so root items have exactly the same state model
+         * as group item containers.
+         */
+        &.is-empty {
+            min-height: 3rem;
+
+            border-color: var(--sortable-border-color);
+            background-color: var(--sortable-drop-bg);
+
+            &::before {
+                content: 'Перетащите элементы сюда';
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                min-height: 2rem;
+                padding: 0.25rem;
+
+                color: var(--bs-secondary-color);
+                font-size: 0.875rem;
+                text-align: center;
+
+                pointer-events: none;
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Groups collection.
+    // -------------------------------------------------------------------------
+
+    &__groups {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+
+        margin-top: 0.75rem;
+    }
+
+    // -------------------------------------------------------------------------
+    // Group.
+    // -------------------------------------------------------------------------
+
+    &__group {
+        overflow: hidden;
+
+        border: var(--bs-border-width) solid var(--sortable-border-color);
+        border-radius: var(--bs-border-radius);
+        background-color: var(--sortable-bg);
+
+        transition:
+            border-color var(--sortable-transition),
+            box-shadow var(--sortable-transition),
+            background-color var(--sortable-transition);
+
+        &:focus-within {
+            border-color: rgba(var(--bs-primary-rgb), 0.5);
+        }
+
+        /**
+         * SortableJS group states can be applied directly to the group.
+         */
+        &.sortable-ghost {
+            opacity: 0.4;
+
+            background-color: var(--sortable-drag-bg);
+            border-color: rgba(var(--bs-primary-rgb), 0.25);
+        }
+
+        &.sortable-chosen {
+            box-shadow: var(--bs-box-shadow-sm);
+        }
+
+        &.sortable-drag {
+            box-shadow: var(--bs-box-shadow);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Group header.
+    //
+    // Important:
+    // The header itself is NOT a drag handle.
+    // Only the dedicated handle element is draggable.
+    // This keeps title editing and action buttons interactive.
+    // -------------------------------------------------------------------------
+
+    &__group-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        min-height: 2.75rem;
+        padding: 0.5rem 0.75rem;
+
+        border-bottom: var(--bs-border-width) solid var(--sortable-border-color);
+        background-color: var(--sortable-secondary-bg);
+
+        user-select: none;
+    }
+
+    // -------------------------------------------------------------------------
+    // Group drag handle.
+    // -------------------------------------------------------------------------
+
+    &__group-handle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 1.5rem;
+        height: 1.75rem;
+        flex-shrink: 0;
+
+        color: var(--bs-secondary-color);
+
+        cursor: grab;
+
+        transition:
+            color var(--sortable-transition),
+            opacity var(--sortable-transition);
+
+        &:hover {
+            color: var(--bs-body-color);
+        }
+
+        &:active {
+            cursor: grabbing;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Group title.
+    // -------------------------------------------------------------------------
+
+    &__group-title {
+        min-width: 0;
+        flex: 1;
+
+        font-weight: 500;
+        line-height: 1.5;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        /**
+         * When the title is being edited, the generated input should
+         * occupy the same logical area without changing the header layout.
+         */
+        .form-control {
+            min-width: 0;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Group actions.
+    // -------------------------------------------------------------------------
+
+    &__group-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.125rem;
+
+        flex-shrink: 0;
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+
+            border-radius: var(--bs-border-radius-sm);
+            color: var(--bs-secondary-color);
+
+            transition:
+                color var(--sortable-transition),
+                background-color var(--sortable-transition);
+
+            &:hover,
+            &:focus-visible {
+                color: var(--bs-body-color);
+                background-color: rgba(var(--bs-body-color-rgb), 0.06);
+            }
+
+            /**
+             * Add item.
+             */
+            &[data-sortable-group-add-item] {
+                &:hover,
+                &:focus-visible {
+                    color: var(--bs-success);
+                }
+            }
+
+            /**
+             * Edit group title.
+             */
+            &[data-sortable-group-edit] {
+                &:hover,
+                &:focus-visible {
+                    color: var(--bs-primary);
+                }
+            }
+
+            /**
+             * Remove group.
+             */
+            &[data-sortable-group-remove] {
+                &:hover,
+                &:focus-visible {
+                    color: var(--bs-danger);
+                }
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Group items container.
+    // -------------------------------------------------------------------------
+
+    &__group-items {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        min-height: 2.75rem;
+        padding: 0.5rem;
+
+        background-color: var(--sortable-bg);
+
+        border: var(--bs-border-width) dashed transparent;
+        border-radius: 0 0 var(--bs-border-radius) var(--bs-border-radius);
+
+        transition:
+            background-color var(--sortable-transition),
+            border-color var(--sortable-transition);
+
+        /**
+         * IMPORTANT:
+         * Empty state is controlled by the JS-managed `.is-empty` class.
+         *
+         * Do NOT replace this with :empty.
+         * Blade whitespace, dynamically inserted nodes and SortableJS
+         * placeholders make :empty an unreliable state indicator.
+         */
+        &.is-empty {
+            min-height: 3rem;
+
+            border-color: var(--sortable-border-color);
+            background-color: var(--sortable-drop-bg);
+
+            &::before {
+                content: 'Перетащите элементы сюда';
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                min-height: 2rem;
+                padding: 0.25rem;
+
+                color: var(--bs-secondary-color);
+                font-size: 0.875rem;
+                text-align: center;
+
+                pointer-events: none;
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Item.
+    // -------------------------------------------------------------------------
+
+    &__item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        min-height: 2.5rem;
+        padding: 0.375rem 0.5rem;
+
+        border: var(--bs-border-width) solid transparent;
+        border-radius: var(--bs-border-radius-sm);
+        background-color: var(--sortable-bg);
+
+        transition:
+            background-color var(--sortable-transition),
+            border-color var(--sortable-transition),
+            box-shadow var(--sortable-transition);
+
+        &:hover {
+            background-color: var(--sortable-hover-bg);
+            border-color: var(--sortable-border-color);
+        }
+
+        // -------------------------------------------------------------
+        // Item remove button.
+        // -------------------------------------------------------------
+
+        > .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+
+            flex-shrink: 0;
+
+            border-radius: var(--bs-border-radius-sm);
+            color: var(--bs-secondary-color);
+
+            transition:
+                color var(--sortable-transition),
+                background-color var(--sortable-transition);
+
+            &:hover,
+            &:focus-visible {
+                color: var(--bs-danger);
+                background-color: rgba(var(--bs-danger-rgb), 0.06);
+            }
+        }
+
+        // -------------------------------------------------------------
+        // SortableJS states.
+        // -------------------------------------------------------------
+
+        &.sortable-ghost {
+            opacity: 0.4;
+
+            background-color: var(--sortable-drag-bg);
+            border-color: rgba(var(--bs-primary-rgb), 0.25);
+        }
+
+        &.sortable-chosen {
+            box-shadow: var(--bs-box-shadow-sm);
+        }
+
+        &.sortable-drag {
+            box-shadow: var(--bs-box-shadow);
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Item content.
+    //
+    // The content itself is NOT the drag handle.
+    // This is important because it may contain Typeahead, inputs and
+    // other interactive controls.
+    // -------------------------------------------------------------------------
+
+    &__item-content {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        min-width: 0;
+        flex: 1;
+    }
+
+    // -------------------------------------------------------------------------
+    // Item drag handle.
+    // -------------------------------------------------------------------------
+
+    &__item-handle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 1.5rem;
+        height: 1.75rem;
+        flex-shrink: 0;
+
+        color: var(--bs-secondary-color);
+
+        cursor: grab;
+
+        transition:
+            color var(--sortable-transition),
+            opacity var(--sortable-transition);
+
+        &:hover {
+            color: var(--bs-body-color);
+        }
+
+        &:active {
+            cursor: grabbing;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Item label/content.
+    // -------------------------------------------------------------------------
+
+    &__item-label {
+        display: block;
+
+        min-width: 0;
+        flex: 1;
+
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    // -------------------------------------------------------------------------
+    // Reduced motion.
+    // -------------------------------------------------------------------------
+
+    @media (prefers-reduced-motion: reduce) {
+        &__group,
+        &__group-handle,
+        &__group-actions .btn,
+        &__group-items,
+        &__items,
+        &__item,
+        &__item-handle,
+        &__item > .btn {
+            transition: none;
+        }
+    }
+}

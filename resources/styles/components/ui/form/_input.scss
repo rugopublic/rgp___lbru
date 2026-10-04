@@ -1,0 +1,448 @@
+/* ============================================================
+   UI INPUT
+   ============================================================ */
+
+.ui-input {
+    position: relative;
+
+    --ui-input-primary: #E91E63;
+    --ui-input-primary-rgb: 233, 30, 99;
+
+    --ui-input-error: #b34b56;
+    --ui-input-success: #4d9a72;
+
+    --ui-input-border: #dcdcd8;
+    --ui-input-text: #212121;
+    --ui-input-muted: #8b8b8b;
+
+    --ui-input-radius: 12px;
+}
+
+
+/* ============================================================
+   LABEL
+   ============================================================ */
+
+.ui-input__label {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+
+    margin-bottom: .45rem;
+
+    color: #333;
+    font-size: .84rem;
+    font-weight: 600;
+
+    transition:
+        color .18s ease,
+        transform .18s ease;
+}
+
+.ui-input__label.is-error {
+    color: var(--ui-input-error);
+}
+
+.ui-input__error-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 18px;
+    height: 18px;
+
+    padding: 0;
+    border: 0;
+
+    background: transparent;
+    color: var(--ui-input-error);
+
+    font-size: .82rem;
+
+    cursor: pointer;
+
+    transition:
+        transform .15s ease,
+        color .15s ease;
+}
+
+.ui-input__error-toggle:hover {
+    transform: scale(1.12);
+}
+
+
+/* ============================================================
+   INPUT CONTROL WRAPPER
+   ============================================================ */
+
+.ui-input__control-wrap {
+    position: relative;
+
+    /*
+     * Создаём собственный stacking context.
+     *
+     * Это важно для ripple:
+     * он должен находиться поверх input,
+     * но не влиять на соседние элементы.
+     */
+    isolation: isolate;
+
+    /*
+     * Не задаём фиксированную высоту.
+     *
+     * Высота wrapper автоматически определяется
+     * Bootstrap input:
+     *
+     * .form-control
+     * .form-control-sm
+     * .form-control-lg
+     */
+}
+
+
+/* ============================================================
+   RIPPLE
+   ============================================================ */
+
+/*
+ * Ripple НЕ является фоном поля.
+ *
+ * Это отдельная тонкая обводка, которая:
+ *
+ * 1. появляется вокруг input;
+ * 2. слегка расширяется;
+ * 3. исчезает;
+ * 4. не перекрывает содержимое;
+ * 5. не ловит mouse events.
+ *
+ * Важно:
+ *
+ * НЕ используем z-index: -1.
+ *
+ * При отрицательном z-index ripple может оказаться
+ * за stacking context родителя и частично исчезнуть.
+ */
+
+.ui-input__ripple {
+    position: absolute;
+
+    /*
+     * Выходим за границы input со всех четырёх сторон.
+     *
+     * Именно это исправляет проблему,
+     * когда ripple был виден по ширине,
+     * но практически терялся по высоте.
+     */
+    inset: -4px;
+
+    display: block;
+
+    border: 1px solid currentColor;
+    border-radius: calc(var(--ui-input-radius) + 4px);
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    transform: scale(.985);
+    transform-origin: center;
+
+    /*
+     * Ripple находится поверх input,
+     * но содержит только border.
+     */
+    z-index: 2;
+
+    animation:
+        ui-input-ripple .5s cubic-bezier(.2, .75, .3, 1) forwards;
+}
+
+
+/*
+ * Input находится под ripple.
+ *
+ * Сам ripple при этом не мешает взаимодействию:
+ * pointer-events: none.
+ */
+
+.ui-input__control {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* ------------------------------------------------------------
+   Ripple states
+   ------------------------------------------------------------ */
+
+.ui-input__ripple.is-success {
+    color: rgba(77, 154, 114, .42);
+}
+
+.ui-input__ripple.is-danger {
+    color: rgba(179, 75, 86, .45);
+}
+
+.ui-input__ripple.is-delete {
+    color: rgba(120, 120, 115, .30);
+}
+
+
+/* ------------------------------------------------------------
+   Ripple animation
+   ------------------------------------------------------------ */
+
+@keyframes ui-input-ripple {
+
+    /*
+     * Начинаем почти незаметно.
+     */
+    0% {
+        opacity: 0;
+        transform: scale(.985);
+    }
+
+    /*
+     * Очень короткий пик.
+     *
+     * Благодаря этому волна ощущается,
+     * но не выглядит как flashing.
+     */
+    12% {
+        opacity: .72;
+    }
+
+    /*
+     * Медленно расходится наружу.
+     */
+    100% {
+        opacity: 0;
+        transform: scale(1.035);
+    }
+}
+
+
+/* ============================================================
+   INPUT CONTROL
+   ============================================================ */
+
+.ui-input__control {
+    min-height: 46px;
+
+    border-color: var(--ui-input-border);
+    border-radius: var(--ui-input-radius);
+
+    color: var(--ui-input-text);
+    background-color: #fff;
+
+    box-shadow: none;
+
+    transition:
+        border-color .18s ease,
+        box-shadow .18s ease,
+        background-color .18s ease;
+}
+
+.ui-input__control:hover {
+    border-color: #cfcfcb;
+}
+
+.ui-input__control:focus {
+    border-color: rgba(var(--ui-input-primary-rgb), .58);
+
+    box-shadow:
+        0 0 0 4px rgba(var(--ui-input-primary-rgb), .10);
+}
+
+
+/* ============================================================
+   INVALID STATE
+   ============================================================ */
+
+.ui-input__control.is-invalid {
+    border-color: rgba(179, 75, 86, .62);
+}
+
+
+/* ============================================================
+   METER
+   ============================================================ */
+
+.ui-input__meter {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+
+    margin-top: .55rem;
+}
+
+.ui-input__meter .field-meter-track {
+    flex: 1;
+
+    height: 5px;
+
+    overflow: hidden;
+
+    border-radius: 99px;
+
+    background: #ededeb;
+}
+
+.ui-input__meter .field-meter-bar {
+    width: 0;
+    height: 100%;
+
+    border-radius: inherit;
+
+    background: #b9b9b5;
+
+    transition:
+        width .2s ease,
+        background-color .2s ease;
+}
+
+.ui-input__meter .field-meter-label {
+    flex: 0 0 auto;
+
+    color: #999;
+
+    font-size: .7rem;
+    font-variant-numeric: tabular-nums;
+
+    white-space: nowrap;
+
+    transition:
+        color .2s ease;
+}
+
+
+/* ============================================================
+   METER STATES
+   ============================================================ */
+
+.ui-input__meter.is-warning .field-meter-bar {
+    background: #c49b29;
+}
+
+.ui-input__meter.is-good .field-meter-bar {
+    background: #5b9d78;
+}
+
+.ui-input__meter.is-full .field-meter-bar {
+    background: #4d8e68;
+}
+
+
+/* ============================================================
+   HINT
+   ============================================================ */
+
+.ui-input__hint {
+    margin-top: .4rem;
+
+    color: var(--ui-input-muted);
+    font-size: .78rem;
+    line-height: 1.45;
+}
+
+
+/* ============================================================
+   ERROR
+   ============================================================ */
+
+.ui-input__error {
+    display: none;
+
+    margin-top: .45rem;
+    padding: .55rem .7rem;
+
+    border: 1px solid #f1c2c7;
+    border-radius: 9px;
+
+    background: #fff8f8;
+    color: var(--ui-input-error);
+
+    font-size: .76rem;
+    line-height: 1.45;
+}
+
+.ui-input__error.is-visible {
+    display: block;
+}
+
+
+/* ============================================================
+   ERROR STATE
+   ============================================================ */
+
+.ui-input.has-error .ui-input__label {
+    color: var(--ui-input-error);
+}
+
+.ui-input.has-error .ui-input__control {
+    border-color: rgba(179, 75, 86, .62);
+}
+
+
+/*
+ * После первого изменения поля серверная ошибка
+ * больше не должна визуально висеть.
+ */
+
+.ui-input.is-corrected .ui-input__label {
+    color: #333;
+}
+
+.ui-input.is-corrected .ui-input__control {
+    border-color: var(--ui-input-border);
+}
+
+
+/* ============================================================
+   BOOTSTRAP SIZES
+   ============================================================ */
+
+/*
+ * Bootstrap сам управляет большей частью размеров,
+ * но задаём минимальную высоту, чтобы визуальная система
+ * компонента оставалась предсказуемой.
+ */
+
+.ui-input .form-control-sm {
+    min-height: 38px;
+}
+
+.ui-input .form-control-lg {
+    min-height: 56px;
+}
+
+
+/* ============================================================
+   REQUIRED MARK
+   ============================================================ */
+
+.ui-input .required-mark {
+    color: var(--ui-input-primary);
+    font-weight: 700;
+}
+
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .ui-input__label,
+    .ui-input__error-toggle,
+    .ui-input__control,
+    .ui-input__meter .field-meter-bar,
+    .ui-input__meter .field-meter-label {
+        transition: none;
+    }
+
+    .ui-input__ripple {
+        animation: none;
+        opacity: 0;
+    }
+}

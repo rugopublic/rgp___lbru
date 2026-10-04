@@ -1,0 +1,10 @@
+.admin-dashboard .sales-hero { padding:1.5rem; border:1px solid #cde5d6; border-radius:18px; background:linear-gradient(145deg,#f5fbf7,#fff); }
+.admin-dashboard .sales-hero__value { font-size:clamp(2rem,4vw,3.2rem); font-weight:750; letter-spacing:-.05em; color:#194d38; }
+.admin-dashboard .sales-hero__label { color:#6b7c73; font-size:.82rem; }
+.admin-dashboard .sales-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.85rem; }
+.admin-dashboard .pipeline-card { padding:1rem; border:1px solid #e8e8e6; border-radius:14px; background:#fff; }
+.admin-dashboard .pipeline-card strong { display:block; font-size:1.35rem; }
+.admin-dashboard .pipeline-card span { color:#888; font-size:.76rem; }
+.admin-dashboard .warning-card { border:1px solid #f0dfae; background:#fff9e9; color:#7b611e; border-radius:14px; padding:1rem; }
+.admin-dashboard .dashboard-section { margin-top:1.25rem; }
+@media (max-width:900px){.admin-dashboard .sales-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}

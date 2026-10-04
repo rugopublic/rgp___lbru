@@ -1,0 +1,119 @@
+.ui-form-container {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+
+    // Semantic regions
+    > main,
+    > aside {
+        min-width: 0;
+    }
+
+    // Form sections
+    section {
+        min-width: 0;
+    }
+
+    // Card-like visual treatment of a form section
+    section > header {
+        margin-bottom: 1.25rem;
+
+        .title {
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        p {
+            margin: 0.35rem 0 0;
+            color: var(--editor-text-secondary, #6c757d);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+    }
+
+    > main,
+    > aside {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    section {
+        padding: 1.5rem;
+        background: var(--editor-surface, #fff);
+        border: 1px solid var(--editor-border, #e5e7eb);
+        border-radius: var(--editor-radius, 0.75rem);
+    }
+
+    // Money section
+    section.money-card {
+        background-color: #eaf7e8;
+        border-color: #cbe5c5;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+        > header {
+            margin: -1.5rem -1.5rem 1.25rem;
+            padding: 0.875rem 1.5rem;
+
+            background-color: #dff0d8;
+            border-bottom: 1px solid #cbe5c5;
+            border-radius: var(--editor-radius, 0.75rem)
+                var(--editor-radius, 0.75rem)
+                0 0;
+            color: #1e5e3f;
+        }
+
+        .form-control,
+        .form-select {
+            background-color: #f9fff8;
+            border-color: #cbe5c5;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #7bbf6a;
+            box-shadow: 0 0 0 0.2rem rgba(94, 170, 96, 0.15);
+        }
+
+        .form-check-input:checked {
+            background-color: #6fbf73;
+            border-color: #6fbf73;
+        }
+    }
+
+    section.seo-card {
+        background-color: #f3f9ff;
+        border-color: #d7e8f7;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+        .form-control,
+        .form-select {
+            background-color: #fbfdff;
+            border-color: #d7e8f7;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #8fc2e8;
+            box-shadow: 0 0 0 0.2rem rgba(84, 160, 215, 0.12);
+        }
+
+        .alert {
+            background-color: rgba(255, 255, 255, 0.65);
+            border-color: #dbeaf6;
+        }
+    }
+
+    // Main / aside may contain sections with different internal layouts.
+    section > :last-child {
+        margin-bottom: 0;
+    }
+
+    // Mobile: one semantic column.
+    @media (max-width: 991.98px) {
+        grid-template-columns: 1fr;
+    }
+}

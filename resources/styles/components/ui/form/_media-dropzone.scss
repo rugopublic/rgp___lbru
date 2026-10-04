@@ -1,0 +1,1614 @@
+// =========================================================================
+// Media Dropzone
+// =========================================================================
+
+// =========================================================================
+// Cropper variables
+// =========================================================================
+
+$crop-bg-dark: #212529;
+$crop-border-light: rgba(255, 255, 255, 0.95);
+$crop-shadow-dark: rgba(0, 0, 0, 0.8);
+$crop-overlay: rgba(0, 0, 0, 0.45);
+$crop-grid-color: rgba(255, 255, 255, 0.45);
+$crop-handle-size: 12px;
+$crop-handle-border: 2px solid #fff;
+$crop-handle-bg: #212529;
+
+
+// =========================================================================
+// Media Dropzone
+// =========================================================================
+
+.media-dropzone {
+
+    // =========================================================================
+    // Dropzone surface
+    // =========================================================================
+
+    &__surface {
+
+        position: relative;
+
+        width: 100%;
+        aspect-ratio: 1 / 1;
+
+        overflow: hidden;
+
+        border: 2px dashed var(--bs-border-color);
+        border-radius: var(--bs-border-radius-lg);
+
+        background-color: var(--bs-tertiary-bg);
+
+        transition:
+            border-color 0.2s ease,
+            background-color 0.2s ease,
+            box-shadow 0.2s ease;
+
+
+        // ---------------------------------------------------------------------
+        // Preview exists
+        // ---------------------------------------------------------------------
+
+        &:has(.media-dropzone__preview:not([hidden])) {
+            border-style: solid;
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Hover
+        // ---------------------------------------------------------------------
+
+        &:hover {
+            border-color: var(--bs-secondary);
+            background-color: var(--bs-secondary-bg);
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Focus
+        // ---------------------------------------------------------------------
+
+        &:focus-within {
+
+            border-color: var(--bs-primary);
+
+            box-shadow:
+                0 0 0 0.2rem
+                rgba(var(--bs-primary-rgb), 0.15);
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Drag & drop
+        // ---------------------------------------------------------------------
+
+        &.is-dragover {
+
+            border-color: var(--bs-primary);
+
+            background-color:
+                rgba(var(--bs-primary-rgb), 0.06);
+
+            box-shadow:
+                0 0 0 0.2rem
+                rgba(var(--bs-primary-rgb), 0.08),
+                inset 0 0 0 1px
+                rgba(var(--bs-primary-rgb), 0.15);
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Error
+        // ---------------------------------------------------------------------
+
+        &.is-error {
+
+            border-color: var(--bs-danger) !important;
+
+            background-color:
+                rgba(var(--bs-danger-rgb), 0.08) !important;
+
+            box-shadow:
+                0 0 0 0.2rem
+                rgba(var(--bs-danger-rgb), 0.15) !important;
+
+            animation:
+                media-dropzone-shake 0.3s ease-in-out;
+        }
+    }
+
+
+    // =========================================================================
+    // Empty state
+    // =========================================================================
+
+    &__empty {
+
+        position: absolute;
+        inset: 0;
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 1rem;
+
+        padding: 2rem;
+
+        color: var(--bs-secondary-color);
+
+        text-align: center;
+
+        cursor: pointer;
+
+        transition:
+            color 0.2s ease,
+            transform 0.2s ease;
+
+
+        &:hover {
+
+            color: var(--bs-body-color);
+
+            .media-dropzone__icon {
+                transform: translateY(-2px);
+            }
+        }
+    }
+
+
+    // =========================================================================
+    // Empty state icon
+    // =========================================================================
+
+    &__icon {
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        width: 4rem;
+        height: 4rem;
+
+        border: 1px solid var(--bs-border-color);
+        border-radius: 50%;
+
+        background-color: var(--bs-body-bg);
+
+        box-shadow: var(--bs-box-shadow-sm);
+
+        transition:
+            transform 0.2s ease,
+            border-color 0.2s ease;
+
+
+        i {
+
+            font-size: 1.75rem;
+            line-height: 1;
+        }
+    }
+
+
+    // =========================================================================
+    // Empty state content
+    // =========================================================================
+
+    &__content {
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        gap: 0.25rem;
+    }
+
+
+    // =========================================================================
+    // Empty state title
+    // =========================================================================
+
+    &__title {
+
+        color: var(--bs-body-color);
+
+        font-size: 0.95rem;
+        font-weight: 600;
+
+        line-height: 1.4;
+    }
+
+
+    // =========================================================================
+    // Empty state description
+    // =========================================================================
+
+    &__description {
+
+        color: var(--bs-secondary-color);
+
+        font-size: 0.825rem;
+
+        line-height: 1.4;
+    }
+
+
+    // =========================================================================
+    // Final preview
+    // =========================================================================
+
+    &__preview {
+
+        position: absolute;
+        inset: 0;
+
+        overflow: hidden;
+
+        background-color: var(--bs-tertiary-bg);
+    }
+
+
+    // =========================================================================
+    // Image / video preview containers
+    // =========================================================================
+
+    &__image-preview,
+    &__video-preview {
+
+        position: absolute;
+        inset: 0;
+
+        width: 100%;
+        height: 100%;
+    }
+
+
+    // =========================================================================
+    // Image / video
+    // =========================================================================
+
+    &__image,
+    &__video {
+
+        display: block;
+
+        width: 100%;
+        height: 100%;
+
+        object-fit: cover;
+    }
+
+
+    &__video {
+        background-color: #000;
+    }
+
+
+    // =========================================================================
+    // File overlay
+    // =========================================================================
+
+    &__file-overlay {
+
+        position: absolute;
+
+        right: 0;
+        bottom: 0;
+        left: 0;
+
+        z-index: 5;
+
+        padding: 0.75rem 1rem;
+
+        background:
+            linear-gradient(
+                to top,
+                rgba(0, 0, 0, 0.7) 0%,
+                transparent 100%
+            );
+
+        color: #fff;
+
+        pointer-events: none;
+
+        transition: opacity 0.2s ease;
+    }
+
+
+    &__file-info {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 0.75rem;
+
+        pointer-events: auto;
+    }
+
+
+    &__file-details {
+
+        min-width: 0;
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 0.125rem;
+    }
+
+
+    &__file-name {
+
+        overflow: hidden;
+
+        color: #fff;
+
+        font-size: 0.875rem;
+        font-weight: 500;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+    &__file-size {
+
+        color: rgba(255, 255, 255, 0.75);
+
+        font-size: 0.75rem;
+    }
+
+
+    // =========================================================================
+    // Remove button
+    // =========================================================================
+
+    &__remove {
+
+        position: absolute;
+
+        top: 0.75rem;
+        right: 0.75rem;
+
+        z-index: 10;
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        width: 2.25rem;
+        height: 2.25rem;
+
+        padding: 0;
+
+        border: 1px solid rgba(255, 255, 255, 0.65);
+        border-radius: 50%;
+
+        color: #fff;
+
+        background-color: rgba(0, 0, 0, 0.6);
+
+        box-shadow:
+            0 0.125rem 0.35rem
+            rgba(0, 0, 0, 0.25);
+
+        backdrop-filter: blur(4px);
+
+        cursor: pointer;
+
+        transition:
+            background-color 0.15s ease,
+            transform 0.15s ease,
+            box-shadow 0.15s ease;
+
+
+        &:hover {
+
+            background-color: rgba(0, 0, 0, 0.8);
+
+            transform: scale(1.05);
+
+            box-shadow:
+                0 0.2rem 0.5rem
+                rgba(0, 0, 0, 0.3);
+        }
+
+
+        &:active {
+            transform: scale(0.96);
+        }
+
+
+        &:focus-visible {
+
+            outline: 0;
+
+            box-shadow:
+                0 0 0 0.2rem
+                rgba(var(--bs-primary-rgb), 0.35),
+                0 0.125rem 0.35rem
+                rgba(0, 0, 0, 0.25);
+        }
+
+
+        i {
+
+            font-size: 0.8rem;
+
+            line-height: 1;
+        }
+    }
+
+
+    // =========================================================================
+    // Message overlay
+    // =========================================================================
+
+    &__message {
+
+        position: absolute;
+        inset: 0;
+
+        z-index: 20;
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+        justify-content: center;
+
+        padding: 2rem;
+
+        background: rgba(0, 0, 0, 0.75);
+
+        backdrop-filter: blur(4px);
+
+        color: #fff;
+
+        text-align: center;
+
+        visibility: hidden;
+
+        opacity: 0;
+
+        transition:
+            opacity 0.35s ease,
+            visibility 0.35s ease;
+
+
+        &:not([hidden]) {
+
+            visibility: visible;
+
+            opacity: 1;
+        }
+
+
+        &-text {
+
+            margin-bottom: 0.75rem;
+
+            font-size: 1rem;
+            font-weight: 500;
+
+            line-height: 1.4;
+        }
+
+
+        .media-dropzone__retry-btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 0.5rem;
+
+            padding: 0.6rem 1.4rem;
+
+            border: 1px solid
+                rgba(255, 255, 255, 0.25);
+
+            border-radius: 50px;
+
+            color: #fff;
+
+            background-color:
+                rgba(255, 255, 255, 0.12);
+
+            font-size: 0.9rem;
+            font-weight: 500;
+
+            line-height: 1;
+
+            cursor: pointer;
+
+            transition:
+                background-color 0.2s ease,
+                transform 0.15s ease,
+                box-shadow 0.2s ease;
+
+
+            &:hover {
+
+                background-color:
+                    rgba(255, 255, 255, 0.22);
+
+                transform: scale(1.03);
+
+                box-shadow:
+                    0 4px 15px
+                    rgba(0, 0, 0, 0.3);
+            }
+
+
+            &:active {
+                transform: scale(0.96);
+            }
+
+
+            &:focus-visible {
+
+                outline:
+                    2px solid
+                    rgba(255, 255, 255, 0.6);
+
+                outline-offset: 2px;
+            }
+
+
+            i {
+                font-size: 1.1rem;
+            }
+        }
+    }
+
+
+    // =========================================================================
+    // Cropper modal
+    // =========================================================================
+
+    [data-media-cropper-modal] {
+
+
+        // ---------------------------------------------------------------------
+        // Dialog
+        // ---------------------------------------------------------------------
+
+        .modal-dialog {
+
+            width: calc(100% - 2rem);
+
+            max-width: 1100px;
+
+            height: calc(100vh - 2rem);
+
+            max-height: calc(100vh - 2rem);
+
+            margin: 1rem auto;
+
+            display: flex;
+
+            align-items: stretch;
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Modal content
+        // ---------------------------------------------------------------------
+
+        .modal-content {
+
+            width: 100%;
+            height: 100%;
+
+            min-height: 0;
+
+            overflow: hidden;
+
+            border: 1px solid
+                var(--bs-border-color);
+
+            border-radius:
+                var(--bs-modal-border-radius);
+
+            box-shadow:
+                var(--bs-box-shadow-lg);
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Modal header
+        // ---------------------------------------------------------------------
+
+        .modal-header {
+
+            flex: 0 0 auto;
+
+            padding: 1rem 1.25rem;
+
+            border-bottom:
+                1px solid
+                var(--bs-border-color);
+
+            background:
+                var(--bs-body-bg);
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Modal body
+        // ---------------------------------------------------------------------
+
+        .modal-body {
+
+            flex: 1 1 auto;
+
+            min-height: 0;
+
+            padding: 0;
+
+            overflow: hidden;
+
+            background:
+                var(--bs-body-bg);
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Modal footer
+        // ---------------------------------------------------------------------
+
+        .modal-footer {
+
+            flex: 0 0 auto;
+
+            padding: 0.75rem 1.25rem;
+
+            border-top:
+                1px solid
+                var(--bs-border-color);
+
+            background:
+                var(--bs-body-bg);
+        }
+    }
+
+
+    // =========================================================================
+    // Cropper subtitle
+    // =========================================================================
+
+    &__cropper-subtitle {
+
+        margin-top: 0.25rem;
+
+        color: var(--bs-secondary-color);
+
+        font-size: 0.875rem;
+    }
+
+
+    // =========================================================================
+    // Cropper layout
+    // =========================================================================
+
+    &__cropper-layout {
+
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(280px, 340px);
+
+        width: 100%;
+        height: 100%;
+
+        min-height: 0;
+
+        overflow: hidden;
+    }
+
+
+    // =========================================================================
+    // Cropper workspace
+    // =========================================================================
+
+    &__cropper-workspace {
+
+        display: flex;
+
+        min-width: 0;
+        min-height: 0;
+
+        flex-direction: column;
+
+        padding: 1.25rem;
+
+        border-right:
+            1px solid
+            var(--bs-border-color);
+
+        background:
+            var(--bs-tertiary-bg);
+    }
+
+
+    // =========================================================================
+    // Cropper workspace / preview headers
+    // =========================================================================
+
+    &__cropper-workspace-header,
+    &__cropper-preview-header {
+
+        flex: 0 0 auto;
+
+        margin-bottom: 0.875rem;
+    }
+
+
+    // =========================================================================
+    // Cropper panel title
+    // =========================================================================
+
+    &__cropper-panel-title {
+
+        margin: 0;
+
+        font-size: 0.95rem;
+
+        font-weight: 600;
+
+        line-height: 1.35;
+    }
+
+
+    // =========================================================================
+    // Cropper panel description
+    // =========================================================================
+
+    &__cropper-panel-description {
+
+        margin: 0.25rem 0 0;
+
+        color: var(--bs-secondary-color);
+
+        font-size: 0.8rem;
+
+        line-height: 1.4;
+    }
+
+
+    // =========================================================================
+    // Cropper container
+    // =========================================================================
+
+    &__cropper-container {
+
+        position: relative;
+
+        flex: 1 1 auto;
+
+        min-width: 0;
+        min-height: 0;
+
+        width: 100%;
+        height: 100%;
+
+        overflow: hidden;
+
+        border: 1px solid
+            var(--bs-border-color);
+
+        border-radius:
+            var(--bs-border-radius);
+
+        background:
+            linear-gradient(
+                45deg,
+                var(--bs-secondary-bg) 25%,
+                transparent 25%
+            ),
+            linear-gradient(
+                -45deg,
+                var(--bs-secondary-bg) 25%,
+                transparent 25%
+            ),
+            linear-gradient(
+                45deg,
+                transparent 75%,
+                var(--bs-secondary-bg) 75%
+            ),
+            linear-gradient(
+                -45deg,
+                transparent 75%,
+                var(--bs-secondary-bg) 75%
+            );
+
+        background-size: 20px 20px;
+
+        background-position:
+            0 0,
+            0 10px,
+            10px -10px,
+            -10px 0;
+    }
+
+
+    // =========================================================================
+    // Cropper canvas
+    //
+    // ВАЖНО:
+    // Cropper.js 2.x создаёт native custom elements.
+    // Canvas должен занимать всю рабочую область.
+    // =========================================================================
+
+    [data-media-cropper-container] {
+
+        cropper-canvas {
+
+            display: block;
+
+            width: 100%;
+            height: 100%;
+
+            min-width: 0;
+            min-height: 0;
+
+            overflow: hidden;
+
+            background:
+                $crop-bg-dark !important;
+
+            user-select: none;
+
+
+            &,
+            &::before,
+            &::after {
+
+                background-image: none !important;
+
+                background-color:
+                    transparent !important;
+            }
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Cropper image
+        // ---------------------------------------------------------------------
+
+        cropper-image {
+
+            display: block;
+
+            background:
+                transparent !important;
+
+            background-image:
+                none !important;
+
+            user-select: none;
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Cropper selection
+        // ---------------------------------------------------------------------
+
+        cropper-selection {
+
+            position: absolute;
+
+            outline:
+                2px solid
+                $crop-border-light;
+
+            box-shadow:
+                0 0 0 1px
+                $crop-shadow-dark,
+                0 0 0 9999px
+                $crop-overlay;
+
+            background:
+                transparent !important;
+
+            background-image:
+                none !important;
+
+            pointer-events: auto;
+
+            user-select: none;
+
+
+            // -----------------------------------------------------------------
+            // Rule of thirds grid
+            // -----------------------------------------------------------------
+
+            &::before {
+
+                content: '';
+
+                position: absolute;
+
+                inset: 0;
+
+                pointer-events: none;
+
+                background:
+
+                    linear-gradient(
+                        to right,
+
+                        transparent
+                            calc(33.333% - 0.5px),
+
+                        $crop-grid-color
+                            calc(33.333% - 0.5px),
+
+                        $crop-grid-color
+                            calc(33.333% + 0.5px),
+
+                        transparent
+                            calc(33.333% + 0.5px)
+                    ),
+
+                    linear-gradient(
+                        to right,
+
+                        transparent
+                            calc(66.666% - 0.5px),
+
+                        $crop-grid-color
+                            calc(66.666% - 0.5px),
+
+                        $crop-grid-color
+                            calc(66.666% + 0.5px),
+
+                        transparent
+                            calc(66.666% + 0.5px)
+                    ),
+
+                    linear-gradient(
+                        to bottom,
+
+                        transparent
+                            calc(33.333% - 0.5px),
+
+                        $crop-grid-color
+                            calc(33.333% - 0.5px),
+
+                        $crop-grid-color
+                            calc(33.333% + 0.5px),
+
+                        transparent
+                            calc(33.333% + 0.5px)
+                    ),
+
+                    linear-gradient(
+                        to bottom,
+
+                        transparent
+                            calc(66.666% - 0.5px),
+
+                        $crop-grid-color
+                            calc(66.666% - 0.5px),
+
+                        $crop-grid-color
+                            calc(66.666% + 0.5px),
+
+                        transparent
+                            calc(66.666% + 0.5px)
+                    );
+
+                background-color:
+                    transparent;
+
+                background-image:
+                    linear-gradient(
+                        to right,
+
+                        transparent
+                            calc(33.333% - 0.5px),
+
+                        $crop-grid-color
+                            calc(33.333% - 0.5px),
+
+                        $crop-grid-color
+                            calc(33.333% + 0.5px),
+
+                        transparent
+                            calc(33.333% + 0.5px)
+                    ),
+
+                    linear-gradient(
+                        to right,
+
+                        transparent
+                            calc(66.666% - 0.5px),
+
+                        $crop-grid-color
+                            calc(66.666% - 0.5px),
+
+                        $crop-grid-color
+                            calc(66.666% + 0.5px),
+
+                        transparent
+                            calc(66.666% + 0.5px)
+                    ),
+
+                    linear-gradient(
+                        to bottom,
+
+                        transparent
+                            calc(33.333% - 0.5px),
+
+                        $crop-grid-color
+                            calc(33.333% - 0.5px),
+
+                        $crop-grid-color
+                            calc(33.333% + 0.5px),
+
+                        transparent
+                            calc(33.333% + 0.5px)
+                    ),
+
+                    linear-gradient(
+                        to bottom,
+
+                        transparent
+                            calc(66.666% - 0.5px),
+
+                        $crop-grid-color
+                            calc(66.666% - 0.5px),
+
+                        $crop-grid-color
+                            calc(66.666% + 0.5px),
+
+                        transparent
+                            calc(66.666% + 0.5px)
+                    );
+            }
+
+
+            // -----------------------------------------------------------------
+            // Disable Cropper crosshair pseudo-element
+            // -----------------------------------------------------------------
+
+            &::after {
+                display: none;
+            }
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Move handle
+        // ---------------------------------------------------------------------
+
+        cropper-selection > cropper-handle[action='move'] {
+
+            display: block !important;
+
+            position: absolute;
+
+            inset: 0;
+
+            width: auto;
+            height: auto;
+
+            margin: 0;
+            padding: 0;
+
+            border: 0;
+
+            background:
+                transparent !important;
+
+            background-image:
+                none !important;
+
+            opacity: 0;
+
+            cursor: move;
+
+            pointer-events: auto;
+
+            z-index: 1;
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Resize handles
+        // ---------------------------------------------------------------------
+
+        cropper-selection > cropper-handle[action$='resize'] {
+
+            position: absolute;
+
+            width: $crop-handle-size;
+            height: $crop-handle-size;
+
+            border:
+                $crop-handle-border;
+
+            background:
+                $crop-handle-bg !important;
+
+            background-image:
+                none !important;
+
+            opacity: 1;
+
+            pointer-events: auto;
+
+            z-index: 2;
+
+            box-sizing: border-box;
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Disable selection handles
+        // ---------------------------------------------------------------------
+
+        cropper-canvas > cropper-handle[action='select'],
+        cropper-selection > cropper-handle[action='select'] {
+
+            display: none !important;
+        }
+    }
+
+
+    // =========================================================================
+    // Cropper preview panel
+    // =========================================================================
+
+    &__cropper-preview-panel {
+
+        display: flex;
+
+        min-width: 0;
+        min-height: 0;
+
+        flex-direction: column;
+
+        padding: 1.25rem;
+
+        background:
+            var(--bs-body-bg);
+    }
+
+
+    // =========================================================================
+    // Cropper preview stage
+    // =========================================================================
+
+    &__cropper-preview-stage {
+
+        display: flex;
+
+        flex: 1 1 auto;
+
+        min-width: 0;
+        min-height: 0;
+
+        align-items: center;
+        justify-content: center;
+
+        overflow: hidden;
+    }
+
+
+    // =========================================================================
+    // Cropper preview frame
+    // =========================================================================
+
+    &__cropper-preview-frame {
+
+        position: relative;
+
+        display: flex;
+
+        flex: 0 0 auto;
+
+        width: min(100%, 300px);
+
+        aspect-ratio: 1 / 1;
+
+        align-items: center;
+        justify-content: center;
+
+        overflow: hidden;
+
+        border:
+            1px solid
+            var(--bs-border-color);
+
+        border-radius:
+            var(--bs-border-radius);
+
+        background-color:
+            var(--bs-tertiary-bg);
+
+        box-shadow:
+            var(--bs-box-shadow-sm);
+    }
+
+
+    // =========================================================================
+    // Cropper preview placeholder
+    // =========================================================================
+
+    &__cropper-preview-placeholder {
+
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        gap: 0.5rem;
+
+        padding: 1rem;
+
+        color:
+            var(--bs-secondary-color);
+
+        font-size: 0.875rem;
+
+        text-align: center;
+
+
+        i {
+            font-size: 2rem;
+        }
+    }
+
+
+    // =========================================================================
+    // Cropper preview canvas
+    // =========================================================================
+
+    &__cropper-preview-canvas {
+
+        display: block;
+
+        width: 100%;
+        height: 100%;
+
+        max-width: 100%;
+        max-height: 100%;
+
+        object-fit: contain;
+    }
+
+
+    // =========================================================================
+    // Responsive — tablet
+    // =========================================================================
+
+    @media (max-width: 991.98px) {
+
+        [data-media-cropper-modal] {
+
+            .modal-dialog {
+
+                width: calc(100% - 1.5rem);
+
+                height: calc(100vh - 1.5rem);
+
+                max-height:
+                    calc(100vh - 1.5rem);
+
+                margin: 0.75rem auto;
+            }
+        }
+
+
+        &__cropper-layout {
+
+            grid-template-columns: 1fr;
+
+            grid-template-rows:
+                minmax(400px, 1fr)
+                auto;
+
+            overflow-y: auto;
+        }
+
+
+        &__cropper-workspace {
+
+            min-height: 0;
+
+            border-right: 0;
+
+            border-bottom:
+                1px solid
+                var(--bs-border-color);
+        }
+
+
+        &__cropper-preview-panel {
+
+            min-height: 300px;
+        }
+
+
+        &__cropper-preview-frame {
+
+            width: min(100%, 280px);
+        }
+    }
+
+
+    // =========================================================================
+    // Responsive — mobile
+    // =========================================================================
+
+    @media (max-width: 575.98px) {
+
+        // ---------------------------------------------------------------------
+        // Dropzone
+        // ---------------------------------------------------------------------
+
+        &__empty {
+
+            padding: 1.25rem;
+
+            gap: 0.75rem;
+        }
+
+
+        &__icon {
+
+            width: 3.5rem;
+            height: 3.5rem;
+
+
+            i {
+                font-size: 1.5rem;
+            }
+        }
+
+
+        &__title {
+            font-size: 0.9rem;
+        }
+
+
+        &__description {
+            font-size: 0.775rem;
+        }
+
+
+        &__remove {
+
+            top: 0.5rem;
+            right: 0.5rem;
+
+            width: 2rem;
+            height: 2rem;
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Modal
+        // ---------------------------------------------------------------------
+
+        [data-media-cropper-modal] {
+
+            .modal-dialog {
+
+                width: 100%;
+
+                height: 100%;
+
+                max-height: none;
+
+                margin: 0;
+            }
+
+
+            .modal-content {
+
+                border: 0;
+
+                border-radius: 0;
+            }
+
+
+            .modal-header {
+
+                padding:
+                    0.75rem 1rem;
+            }
+
+
+            .modal-footer {
+
+                padding:
+                    0.75rem 1rem;
+            }
+        }
+
+
+        // ---------------------------------------------------------------------
+        // Cropper layout
+        // ---------------------------------------------------------------------
+
+        &__cropper-layout {
+
+            grid-template-columns: 1fr;
+
+            grid-template-rows:
+                minmax(320px, 1fr)
+                minmax(260px, auto);
+
+            min-height: 0;
+        }
+
+
+        &__cropper-workspace {
+
+            min-height: 0;
+
+            padding: 0.75rem;
+        }
+
+
+        &__cropper-preview-panel {
+
+            min-height: 0;
+
+            padding: 0.75rem;
+        }
+
+
+        &__cropper-workspace-header,
+        &__cropper-preview-header {
+
+            margin-bottom: 0.625rem;
+        }
+
+
+        &__cropper-panel-title {
+            font-size: 0.9rem;
+        }
+
+
+        &__cropper-panel-description {
+            font-size: 0.775rem;
+        }
+
+
+        &__cropper-container {
+
+            min-height: 0;
+        }
+
+
+        &__cropper-preview-frame {
+
+            width: min(100%, 240px);
+        }
+    }
+
+
+    // =========================================================================
+    // Very small viewport height
+    // =========================================================================
+
+    @media (max-height: 700px) and (min-width: 576px) {
+
+        [data-media-cropper-modal] {
+
+            .modal-dialog {
+
+                height: calc(100vh - 1rem);
+
+                max-height:
+                    calc(100vh - 1rem);
+
+                margin: 0.5rem auto;
+            }
+        }
+
+
+        &__cropper-workspace {
+
+            padding: 0.875rem;
+        }
+
+
+        &__cropper-preview-panel {
+
+            padding: 0.875rem;
+        }
+
+
+        &__cropper-workspace-header,
+        &__cropper-preview-header {
+
+            margin-bottom: 0.5rem;
+        }
+    }
+
+
+    // =========================================================================
+    // Very small mobile viewport height
+    // =========================================================================
+
+    @media (max-height: 600px) {
+
+        [data-media-cropper-modal] {
+
+            .modal-header {
+
+                padding:
+                    0.5rem 0.75rem;
+            }
+
+
+            .modal-footer {
+
+                padding:
+                    0.5rem 0.75rem;
+            }
+        }
+
+
+        &__cropper-layout {
+
+            grid-template-rows:
+                minmax(260px, 1fr)
+                minmax(220px, auto);
+        }
+
+
+        &__cropper-preview-frame {
+
+            width: min(100%, 200px);
+        }
+    }
+
+
+    // =========================================================================
+    // Shake animation
+    // =========================================================================
+
+    @keyframes media-dropzone-shake {
+
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        20% {
+            transform: translateX(-4px);
+        }
+
+        40% {
+            transform: translateX(4px);
+        }
+
+        60% {
+            transform: translateX(-2px);
+        }
+
+        80% {
+            transform: translateX(2px);
+        }
+    }
+}

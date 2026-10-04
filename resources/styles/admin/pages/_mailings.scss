@@ -1,0 +1,6 @@
+.admin-mailings .campaign-editor { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:1.25rem; }
+.admin-mailings .preview { position:sticky; top:1rem; padding:1rem; border:1px solid #e8e8e6; border-radius:16px; background:#fafaf9; }
+.admin-mailings .email-preview { border:1px solid #e4e4e1; border-radius:14px; background:#fff; overflow:hidden; }
+.admin-mailings .email-preview__head { padding:1rem; border-bottom:1px solid #eee; }
+.admin-mailings .email-preview__body { padding:1rem; color:#444; line-height:1.65; white-space:pre-wrap; }
+@media(max-width:900px){.admin-mailings .campaign-editor{grid-template-columns:1fr}.admin-mailings .preview{position:static}}

@@ -1,0 +1,26 @@
+.ui-modal {
+    .modal-content {
+        border: 0;
+        border-radius: 18px;
+        box-shadow: 0 25px 70px rgba(0, 0, 0, .16);
+        overflow: hidden;
+    }
+
+    .modal-header {
+        padding: 1.25rem 1.35rem;
+    }
+
+    .modal-title {
+        font-size: 1rem;
+        font-weight: 650;
+    }
+
+    .modal-body {
+        padding: 1.35rem;
+    }
+
+    .modal-footer {
+        padding: 0 1.35rem 1.35rem;
+        border-top: 0;
+    }
+}

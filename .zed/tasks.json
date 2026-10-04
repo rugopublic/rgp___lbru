@@ -1,0 +1,20 @@
+[
+  {
+    "label": "🚀 Start Likablog Server",
+    "command": "powershell -ExecutionPolicy Bypass -File .\\local\\tasks\\run-server.ps1",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "🔄 Full Restart Likablog Server",
+    "command": "powershell -ExecutionPolicy Bypass -File .\\local\\tasks\\run-server.ps1 -Restart",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "🛑 Stop Likablog Server",
+    "command": "powershell -ExecutionPolicy Bypass -File .\\local\\tasks\\run-server.ps1 -Stop",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false
+  }
+]

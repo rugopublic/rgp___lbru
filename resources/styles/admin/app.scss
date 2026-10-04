@@ -1,0 +1,20 @@
+// Vite and Parcel aren't happy with relative URLs,
+// which is why it's necessary to update the import directory
+// to point to its location within node_modules
+// See https://icons.getbootstrap.com/#sass
+$bootstrap-icons-font-dir: "bootstrap-icons/font/fonts";
+
+@use "bootstrap/scss/bootstrap" as *;
+@use "bootstrap-icons/font/bootstrap-icons" with (
+    $bootstrap-icons-font-dir: $bootstrap-icons-font-dir
+);
+
+@use "@/styles/components/ui/form/media-dropzone" as *;
+@use "@/styles/components/ui/form/input" as *;
+@use "@/styles/components/ui/form/textarea" as *;
+@use "@/styles/components/ui/layout/down-bar" as *;
+@use "@/styles/components/ui/layout/page-header" as *;
+@use "@/styles/components/ui/layout/modal" as *;
+
+@use 'pages/base' as *;
+@use 'courses/courses' as *;

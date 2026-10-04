@@ -1,0 +1,8 @@
+.admin-calendar .calendar-table { table-layout:fixed; }
+.admin-calendar .calendar-table td { height:130px; padding:.65rem; vertical-align:top; border-color:#ececea; transition:background .16s ease, box-shadow .16s ease; }
+.admin-calendar .calendar-table td.calendar-day:hover { background:#fff8fb; box-shadow:inset 0 0 0 1px rgba(233,30,99,.12); }
+.admin-calendar .calendar-day__number { display:inline-flex; width:30px; height:30px; align-items:center; justify-content:center; border-radius:9px; font-size:.76rem; font-weight:700; }
+.admin-calendar .calendar-day__number.is-today { background:#E91E63; color:#fff; }
+.admin-calendar .publication-pill { display:block; margin-top:.35rem; padding:.3rem .45rem; border-radius:7px; background:#fafaf9; color:#555; font-size:.68rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.admin-calendar .gap-note { padding:1rem; border:1px solid #f0dfae; border-radius:14px; background:#fff9e9; color:#7b611e; }
+@media(max-width:767px){.admin-calendar .calendar-table td{height:90px;padding:.35rem}.admin-calendar .publication-pill{font-size:.6rem}}
