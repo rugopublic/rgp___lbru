@@ -66,6 +66,15 @@ interface CourseRepositoryInterface
     public function findPublished(string $publicId): ?Model;
 
     /**
+     * Finds a course for a user who already has active access, regardless of
+     * current publication status or soft-deletion state.
+     *
+     * @param string $publicId
+     * @return ?Model
+     */
+    public function findForAccess(string $publicId): ?Model;
+
+    /**
      * Synchronizes teachers through the repository relationship.
      *
      * @param Model $course

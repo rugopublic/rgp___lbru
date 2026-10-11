@@ -30,7 +30,7 @@ final class CourseLearnController extends Controller
      */
     public function show(string $course): View
     {
-        $item = $this->courses->findPublished($course);
+        $item = $this->courses->findForAccess($course);
         abort_unless($item, 404);
 
         $enrollment = $this->enrollments->findActiveForUser((int) Auth::id(), (int) $item->id);
