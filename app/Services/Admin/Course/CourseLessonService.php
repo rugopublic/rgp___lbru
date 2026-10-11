@@ -38,6 +38,7 @@ final class CourseLessonService
     {
         $placed = [];
 
+        try {
         if (array_key_exists('video', $data) && $data['video']) {
             $path = $this->media->placeUpload($owner, $lesson, (string) $data['video'], 'video');
             $placed[] = $path;
@@ -64,7 +65,6 @@ final class CourseLessonService
             }
         }
 
-        try {
             DB::transaction(function () use ($lesson, $data, $quizData): void {
                 $this->structure->updateLessonContent($lesson, $data);
 

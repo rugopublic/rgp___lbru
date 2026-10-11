@@ -47,8 +47,11 @@ final class ProductService
     public function update(Model $product, User $owner, array $data): bool
     {
         $placed=[];
-        foreach (['file','cover'] as $field) $this->placeSingle($product,$owner,$data,$field,$field,$placed);
         try {
+            foreach (['file','cover'] as $field) {
+                $this->placeSingle($product, $owner, $data, $field, $field, $placed);
+            }
+
             return DB::transaction(function() use($product,$data):bool{
                 $seoData=array_intersect_key($data,array_flip(['meta_title','meta_description']));
                 $articleIds = $data['article_ids'] ?? null;

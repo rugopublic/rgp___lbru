@@ -47,12 +47,13 @@ final class ArticleService
     public function update(Model $article, User $owner, array $data): bool
     {
         $placed = [];
+        try {
         if (array_key_exists('body',$data)) {
             $resolved = $this->richText->resolvePendingImages($owner,$article,$data['body']);
             $data['body'] = $resolved['html']; $placed = $resolved['paths'];
         }
         $this->placeSingle($article,$owner,$data,'cover','cover',$placed);
-        try {
+
             $ok = DB::transaction(function () use ($article,$data): bool {
                 $seoData = array_intersect_key($data, array_flip(['meta_title','meta_description']));
                 unset($data['meta_title'],$data['meta_description'],$data['cover_remove']);$productIds=$data['product_ids']??null;unset($data['product_ids']);

@@ -58,6 +58,7 @@ final class RecipeService
     public function update(Model $recipe, User $owner, array $data): bool
     {
         $placed = [];
+        try {
         $resolved = $this->richText->resolvePendingImages($owner, $recipe, $data['body'] ?? null);
         if (array_key_exists('body', $data)) {
             $data['body'] = $resolved['html'];
@@ -72,7 +73,6 @@ final class RecipeService
             $this->placeSingle($recipe, $owner, $data, $field, $field, $placed);
         }
 
-        try {
             return DB::transaction(function () use ($recipe, $owner, $data, $structure, $stepData, &$placed): bool {
                 $seoData = array_intersect_key($data, array_flip(['meta_title', 'meta_description']));
                 $categories = $data['category_ids'] ?? null;

@@ -7,6 +7,7 @@ namespace App\Services\Admin\Content;
 use App\Models\User;
 use App\Services\Admin\Generic\FileService;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 
 final class RichTextMediaService
@@ -42,46 +43,58 @@ final class RichTextMediaService
         $root = $dom->getElementById('__rta_root');
         if (!$root) return ['html'=>$html,'paths'=>[]];
 
-        foreach (iterator_to_array($root->getElementsByTagName('img')) as $image) {
-            /** @var \DOMElement $image */
-            $uploadId = $image->getAttribute('data-upload-id');
-            if ($uploadId === '') continue;
-            if (!Str::isUuid($uploadId)) {
-                throw new RuntimeException('Некорректный идентификатор inline-изображения.');
+        try {
+            foreach (iterator_to_array($root->getElementsByTagName('img')) as $image) {
+                /** @var \DOMElement $image */
+                $uploadId = $image->getAttribute('data-upload-id');
+                if ($uploadId === '') continue;
+                if (!Str::isUuid($uploadId)) {
+                    throw new RuntimeException('Некорректный идентификатор inline-изображения.');
+                }
+    
+                if (!$this->files->ready($owner, $uploadId)) {
+                    throw new RuntimeException('Inline-изображение ещё не готово к размещению.');
+                }
+                $extension = strtolower((string) $this->files->extension($owner, $uploadId, true));
+                $mime = (string) $this->files->mimeType($owner, $uploadId);
+                $size = (int) ($this->files->size($owner, $uploadId) ?? 0);
+                $maxSize = (int) config('media.image_max_size', 5 * 1024 * 1024);
+                if ($size <= 0 || $size > $maxSize) {
+                    throw new RuntimeException('Inline-изображение превышает допустимый размер.');
+                }
+                $allowed = [
+                    'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg',
+                    'png' => 'image/png', 'webp' => 'image/webp', 'gif' => 'image/gif',
+                ];
+                if (!isset($allowed[$extension]) || $mime !== $allowed[$extension]) {
+                    throw new RuntimeException('Inline-файл должен быть изображением JPG, PNG, WEBP или GIF.');
+                }
+    
+                $name = Str::random(24);
+                $targetFolder = $this->mediaFolder($entity).'/body';
+                $result = $this->files->place($owner, $uploadId, $targetFolder, $name, true, 'public');
+                if (!$result['success'] || !$result['extension']) {
+                    throw new RuntimeException('Не удалось сохранить inline-изображение.');
+                }
+    
+                $path = $targetFolder.'/'.$name.'.'.$result['extension'];
+                $placed[] = $path;
+                $image->removeAttribute('data-upload-id');
+                $image->setAttribute('src', \Storage::disk('public')->url($path));
+            }
+    
+            return ['html'=>$this->innerHtml($root, $dom),'paths'=>$placed];
+        } catch (\Throwable $e) {
+            foreach ($placed as $path) {
+                try {
+                    Storage::disk('public')->delete($path);
+                } catch (\Throwable $cleanupError) {
+                    report($cleanupError);
+                }
             }
 
-            if (!$this->files->ready($owner, $uploadId)) {
-                throw new RuntimeException('Inline-изображение ещё не готово к размещению.');
-            }
-            $extension = strtolower((string) $this->files->extension($owner, $uploadId, true));
-            $mime = (string) $this->files->mimeType($owner, $uploadId);
-            $size = (int) ($this->files->size($owner, $uploadId) ?? 0);
-            $maxSize = (int) config('media.image_max_size', 5 * 1024 * 1024);
-            if ($size <= 0 || $size > $maxSize) {
-                throw new RuntimeException('Inline-изображение превышает допустимый размер.');
-            }
-            $allowed = [
-                'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg',
-                'png' => 'image/png', 'webp' => 'image/webp', 'gif' => 'image/gif',
-            ];
-            if (!isset($allowed[$extension]) || $mime !== $allowed[$extension]) {
-                throw new RuntimeException('Inline-файл должен быть изображением JPG, PNG, WEBP или GIF.');
-            }
-
-            $name = Str::random(24);
-            $targetFolder = $this->mediaFolder($entity).'/body';
-            $result = $this->files->place($owner, $uploadId, $targetFolder, $name, true, 'public');
-            if (!$result['success'] || !$result['extension']) {
-                throw new RuntimeException('Не удалось сохранить inline-изображение.');
-            }
-
-            $path = $targetFolder.'/'.$name.'.'.$result['extension'];
-            $placed[] = $path;
-            $image->removeAttribute('data-upload-id');
-            $image->setAttribute('src', \Storage::disk('public')->url($path));
+            throw $e;
         }
-
-        return ['html'=>$this->innerHtml($root, $dom),'paths'=>$placed];
     }
 
     /**
