@@ -26,9 +26,12 @@ return [
     |
     */
 
-    'temp_folder' => env('FILE_TEMP_FOLDER', 'temp'),
+    // Upload and cleanup must share the same storage disk and root.
+    'temp_disk' => env('TEMP_UPLOAD_DISK', env('FILESYSTEM_DISK', 'local')),
+    'temp_folder' => env('FILE_TEMP_FOLDER', env('TEMP_UPLOAD_PATH', 'temp')),
 
-    'temp_path' => env('TEMP_UPLOAD_PATH', 'temp'),
+    // Backwards-compatible alias for integrations that still read temp_path.
+    'temp_path' => env('FILE_TEMP_FOLDER', env('TEMP_UPLOAD_PATH', 'temp')),
 
     'product_disk' => env('PRODUCT_FILE_DISK', 'local'),
 ];
