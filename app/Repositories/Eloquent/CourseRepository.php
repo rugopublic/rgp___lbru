@@ -85,6 +85,21 @@ final class CourseRepository extends Repository implements CourseRepositoryInter
     public function findPublished(string $publicId): ?Model { return Course::with(['category','teachers','modules.lessons.steps','seo'])->where('public_id',$publicId)->where('publish_status','published')->where(function($q){$q->whereNull('publish_date')->orWhere('publish_date','<=',now());})->first(); }
 
     /**
+     * Finds course content for an existing enrollment, including unpublished and
+     * soft-deleted courses. The caller must enforce active enrollment before rendering.
+     *
+     * @param string $publicId
+     * @return ?Model
+     */
+    public function findForAccess(string $publicId): ?Model
+    {
+        return Course::withTrashed()
+            ->with(['category', 'teachers', 'modules.lessons.steps', 'seo'])
+            ->where('public_id', $publicId)
+            ->first();
+    }
+
+    /**
      * Synchronizes teachers through the repository relationship.
      *
      * @param Model $course
