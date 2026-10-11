@@ -82,7 +82,7 @@ final class ArticleRepository extends Repository implements ArticleRepositoryInt
      * @param int $limit
      * @return \Illuminate\Support\Collection
      */
-    public function dueForPublication(int $limit = 50): \Illuminate\Support\Collection { return Article::query()->where('is_visible',false)->whereNotNull('publish_at')->where('publish_at','<=',now())->orderBy('id')->limit($limit)->get(['id']); }
+    public function dueForPublication(int $limit = 50): \Illuminate\Support\Collection { return Article::query()->where('is_visible',false)->whereNotNull('publish_at')->where('publish_at','<=',now())->whereColumn('updated_at','<=','publish_at')->orderBy('id')->limit($limit)->get(['id']); }
 
     /**
      * Queries or persists publish if due for the article repository repository.
@@ -90,7 +90,7 @@ final class ArticleRepository extends Repository implements ArticleRepositoryInt
      * @param int $id
      * @return bool
      */
-    public function publishIfDue(int $id): bool { return Article::query()->whereKey($id)->where('is_visible',false)->whereNotNull('publish_at')->where('publish_at','<=',now())->update(['is_visible'=>true,'updated_at'=>now()]) === 1; }
+    public function publishIfDue(int $id): bool { return Article::query()->whereKey($id)->where('is_visible',false)->whereNotNull('publish_at')->where('publish_at','<=',now())->whereColumn('updated_at','<=','publish_at')->update(['is_visible'=>true,'updated_at'=>now()]) === 1; }
 
     /**
      * Queries or persists scheduled between for the article repository repository.

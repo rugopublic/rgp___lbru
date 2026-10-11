@@ -90,7 +90,7 @@ final class RecipeRepository extends Repository implements RecipeRepositoryInter
      * @param int $limit
      * @return \Illuminate\Support\Collection
      */
-    public function dueForPublication(int $limit = 50): \Illuminate\Support\Collection { return Recipe::query()->whereIn('visibility_status',['draft','demo'])->whereNotNull('publish_at')->where('publish_at','<=',now())->orderBy('id')->limit($limit)->get(['id']); }
+    public function dueForPublication(int $limit = 50): \Illuminate\Support\Collection { return Recipe::query()->whereIn('visibility_status',['draft','demo'])->whereNotNull('publish_at')->where('publish_at','<=',now())->whereColumn('updated_at','<=','publish_at')->orderBy('id')->limit($limit)->get(['id']); }
 
     /**
      * Queries or persists publish if due for the recipe repository repository.
@@ -98,7 +98,7 @@ final class RecipeRepository extends Repository implements RecipeRepositoryInter
      * @param int $id
      * @return bool
      */
-    public function publishIfDue(int $id): bool { return Recipe::query()->whereKey($id)->whereIn('visibility_status',['draft','demo'])->whereNotNull('publish_at')->where('publish_at','<=',now())->update(['visibility_status'=>'published','updated_at'=>now()]) === 1; }
+    public function publishIfDue(int $id): bool { return Recipe::query()->whereKey($id)->whereIn('visibility_status',['draft','demo'])->whereNotNull('publish_at')->where('publish_at','<=',now())->whereColumn('updated_at','<=','publish_at')->update(['visibility_status'=>'published','updated_at'=>now()]) === 1; }
 
     /**
      * Queries or persists scheduled between for the recipe repository repository.
