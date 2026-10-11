@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
+it('keeps the default chunk count aligned with the maximum aggregate upload size', function (): void {
+    expect(config('uploads.max_chunks'))->toBe(100);
+});
+
 it('rejects excessive chunk counts before writing a temporary upload', function (): void {
     Storage::fake('local');
     config([
