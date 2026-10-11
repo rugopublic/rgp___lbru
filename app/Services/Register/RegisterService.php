@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Random\RandomException;
 use Throwable;
+use RuntimeException;
 
 /**
  * Class RegisterService
@@ -85,9 +86,9 @@ class RegisterService
                 $this->tokens->create($token->getAttributes());
             });
         } catch(Throwable $e) {
-            Log::error('Failed to initialize the token', [
-                'token' => $token,
-                'error' => $e->getMessage(),
+            Log::error('Failed to initialize the registration token', [
+                'email' => $email,
+                'exception_class' => $e::class,
             ]);
             return false;
         }
@@ -112,12 +113,12 @@ class RegisterService
 
         if(!$emailToken) {
             // throw new ModelNotFoundException('This token does not exist.');
-            Log::error('This token does not exist.', ['token' => $token]);
+            Log::warning('Registration verification token was not found.');
             return false;
         }
 
         if($emailToken->isExpired()) {
-            Log::error('This token is no longer valid.', ['token' => $token]);
+            Log::warning('Registration verification token has expired.');
             // throw new RuntimeException('This token is no longer valid.');
             return false;
         }
@@ -136,24 +137,22 @@ class RegisterService
      */
     public function finalize(string $token, string $password): bool
     {
-        // Before proceeding, it's important to validate the token again.
-        if(!$this->validate($token)) {
-            // Error: this token has expired in the meantime.
-            return false;
-        }
-
-        $emailToken = $this->tokens->findByToken($token);
-
-        $user = null;
-        // The public id will be created for the user automatically after the registration succeeds.
-
         try {
-            DB::transaction(function () use ($emailToken, &$user, $password): void {
+            return DB::transaction(function () use ($token, $password): bool {
+                // Lock and re-check the token in the same transaction as account creation.
+                // Concurrent requests cannot both consume the same verification token.
+                $emailToken = $this->tokens->findByTokenForUpdate($token);
+
+                if (!$emailToken || $emailToken->isExpired()) {
+                    return false;
+                }
+
                 $user = $this->users->create([
                     'password' => bcrypt($password),
                     'email' => $emailToken->email,
                     'email_verified_at' => Carbon::now(),
                 ]);
+
                 $this->legalAcceptances->create([
                     'user_id' => $user->id,
                     'agreement_version' => $emailToken->agreement_version ?: config('legal.agreement_version'),
@@ -162,16 +161,20 @@ class RegisterService
                     'ip' => $emailToken->acceptance_ip,
                     'user_agent' => $emailToken->acceptance_user_agent,
                 ]);
-                $this->tokens->delete($emailToken);
+
+                if (!$this->tokens->delete($emailToken)) {
+                    throw new RuntimeException('Registration token could not be consumed.');
+                }
+
+                return true;
             });
-        } catch(Throwable $e) {
+        } catch (Throwable $e) {
+            // Never write the submitted bearer token or the exception message to logs.
+            // Database exceptions may contain SQL/binding details.
             Log::error('Failed to finalize registration', [
-                'token' => $token,
-                'error' => $e->getMessage(),
+                'exception_class' => $e::class,
             ]);
+
             return false;
         }
-
-        return true;
-    }
-}
+    }}

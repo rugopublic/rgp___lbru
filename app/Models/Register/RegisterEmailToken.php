@@ -67,7 +67,7 @@ class RegisterEmailToken extends Model
 
         $ttl = (int) config('register.email_token_ttl', 86400);
 
-        return $this->created_at->addSeconds($ttl)->isPast();
+        return $this->created_at->copy()->addSeconds($ttl)->isPast();
     }
 
     /**

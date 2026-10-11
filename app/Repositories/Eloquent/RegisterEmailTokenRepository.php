@@ -22,6 +22,20 @@ final class RegisterEmailTokenRepository implements RegisterEmailTokenRepository
     }
 
     /**
+     * Locks a matching verification-token row for atomic single-use consumption.
+     *
+     * @param string $token
+     * @return ?RegisterEmailToken
+     */
+    public function findByTokenForUpdate(string $token): ?RegisterEmailToken
+    {
+        return RegisterEmailToken::query()
+            ->where('token', $token)
+            ->lockForUpdate()
+            ->first();
+    }
+
+    /**
      * Queries or persists delete by email for the register email token repository repository.
      *
      * @param string $email
