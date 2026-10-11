@@ -160,7 +160,7 @@ it('keeps YooKassa webhook named and protected by provider status re-fetch', fun
     $client = file_get_contents(base_path('app/Services/Public/YooKassaClient.php'));
 
     expect($routes)->toContain("->name('payments.webhook')");
-    expect($controller)->toContain("$this->yookassa->getPayment($paymentId)");
+    expect($controller)->toContain('$this->yookassa->getPayment($paymentId)');
     expect($controller)->toContain('IpUtils::checkIp');
     expect($client)->toContain("'Idempotence-Key' => $key");
 });
