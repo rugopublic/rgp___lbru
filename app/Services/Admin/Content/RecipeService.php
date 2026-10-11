@@ -12,6 +12,7 @@ use App\Repositories\Contracts\SeoRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 final class RecipeService
 {
@@ -80,6 +81,10 @@ final class RecipeService
                 unset($data['meta_title'], $data['meta_description'], $data['cover_remove'], $data['video_remove'], $data['category_ids'], $data['product_ids']);
 
                 $ok = $this->repository->update($recipe, $data);
+                if (!$ok) {
+                    throw new RuntimeException('Рецепт не сохранён.');
+                }
+
                 if ($categories !== null) $this->repository->syncCategories($recipe, $categories);
                 if ($products !== null) $this->repository->syncProducts($recipe, $products);
                 if ($structure !== null) $this->structureService->sync($recipe, $structure['groups'] ?? []);
@@ -90,7 +95,7 @@ final class RecipeService
                         'description' => $seoData['meta_description'] ?? null,
                     ]);
                 }
-                return $ok;
+                return true;
             });
         } catch (\Throwable $e) {
             foreach ($placed as $path) Storage::disk('public')->delete($path);

@@ -10,6 +10,7 @@ use App\Repositories\Contracts\SeoRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 final class ReferenceService
 {
@@ -63,6 +64,10 @@ final class ReferenceService
                 unset($data['product_ids']);
 
                 $saved = $this->repository->update($item, $data);
+                if (!$saved) {
+                    throw new RuntimeException('Справочник не сохранён.');
+                }
+
                 if ($productIds !== null) {
                     $this->repository->syncProducts($item, $productIds);
                 }
@@ -74,7 +79,7 @@ final class ReferenceService
                     ]);
                 }
 
-                return $saved;
+                return true;
             });
         } catch (\Throwable $e) {
             foreach ($placed as $path) {
