@@ -220,7 +220,18 @@ class CleanTempUploads extends Command
 
             $lastModified = $disk->lastModified($item['path']);
             if ($lastModified < $expiryTimestamp) {
-                yield $item['path'];
+                // Flysystem returns paths relative to the disk root (for
+                // example "temp/owner/file"), while processFiles() adds
+                // the configured temp root. Strip that prefix here so cloud
+                // disks do not attempt to delete "temp/temp/owner/file".
+                $basePrefix = rtrim($path, '/') . '/';
+                $relativePath = str_starts_with($item['path'], $basePrefix)
+                    ? substr($item['path'], strlen($basePrefix))
+                    : $item['path'];
+
+                if ($relativePath !== '') {
+                    yield $relativePath;
+                }
             }
         }
     }
@@ -476,8 +487,7 @@ class CleanTempUploads extends Command
     /**
      * Cloud disk empty directory cleanup using Storage API.
      *
-     *  **Limitation:** The current implementation only logs the intent to remove
-     *  directories; actual `deleteDirectory` calls are missing. This is a defect.
+     *  Empty directories are removed after expired files have been deleted.
      *
      * @param FilesystemAdapter $disk Resolved filesystem adapter (must be a cloud driver).
      * @param string $basePath Root directory relative to disk.
@@ -486,7 +496,6 @@ class CleanTempUploads extends Command
      *
      * @return void
      *
-     * @todo Implement actual directory deletion.
      */
     private function cleanupEmptyDirsCloud(
         FilesystemAdapter $disk,
@@ -517,6 +526,12 @@ class CleanTempUploads extends Command
                 if ($isDryRun) {
                     $this->line("[DRY-RUN] Would remove directory: $dir");
                     $stats['dirs']++;
+                    continue;
+                }
+
+                if (!$disk->deleteDirectory($dir)) {
+                    $stats['errors']++;
+                    Log::warning('Failed to remove empty temp directory (cloud)', ['path' => $dir]);
                     continue;
                 }
 
