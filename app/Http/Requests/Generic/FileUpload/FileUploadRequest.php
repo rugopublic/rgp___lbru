@@ -43,7 +43,12 @@ class FileUploadRequest extends FormRequest
                 ],
             'chunks_total'
                 => [
-                    'nullable', 'required_with:chunk_number', 'numeric', 'integer', 'gte:1'
+                    'nullable',
+                    'required_with:chunk_number',
+                    'numeric',
+                    'integer',
+                    'gte:1',
+                    'max:' . max(1, (int) config('uploads.max_chunks', 1024)),
                 ]
         ];
     }
@@ -74,6 +79,7 @@ class FileUploadRequest extends FormRequest
             'chunks_total.numeric'          => 'Общее число частей файла должно быть числом.',
             'chunks_total.integer'          => 'Общее число частей файла должно быть целым числом.',
             'chunks_total.gte'              => 'Общее число частей файла должно быть не меньше единицы.',
+            'chunks_total.max'              => 'Общее число частей файла превышает допустимый предел.',
         ];
     }
 }
