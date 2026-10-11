@@ -51,6 +51,6 @@ it('reuses one related-product component across selling content surfaces', funct
         'resources/web/frontend/catalog/ingredient.blade.php',
     ] as $view) {
         expect(file_get_contents(base_path($view)))
-        ->toContain('frontend.components.content-card');
+        ->toContain('frontend.components.related-products');
     }
 });
