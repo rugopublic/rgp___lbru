@@ -36,8 +36,8 @@ use Throwable;
  * ```
  *
  * ## Configuration Dependencies
- * - `filesystems.temp_disk` — default disk name if `--disk` is omitted.
- * - `filesystems.temp_path` — root directory inside the disk (default: "temp").
+ * - `files.temp_disk` — temporary-upload disk; defaults to `FILESYSTEM_DISK`.
+ * - `files.temp_folder` — temporary-upload root shared with `FileService`.
  *
  * @see \App\Http\Controllers\Files\UploadController::tempUpload()
  */
@@ -86,8 +86,11 @@ class CleanTempUploads extends Command
         $hours = max(1, (int) ($this->option('hours') ?? 24));
         $batchSize = max(1, (int) ($this->option('batch') ?? 100));
 
-        $diskName = $this->option('disk') ?? config('filesystems.temp_disk', 'local');
-        $tempPath = rtrim(config('filesystems.temp_path', 'temp'), '/');
+        $diskOption = (string) ($this->option('disk') ?? '');
+        $diskName = $diskOption !== ''
+            ? $diskOption
+            : (string) config('files.temp_disk', config('filesystems.default', 'local'));
+        $tempPath = rtrim((string) config('files.temp_folder', config('files.temp_path', 'temp')), '/');
 
         /** @var FilesystemAdapter $disk */
         $disk = Storage::disk($diskName);

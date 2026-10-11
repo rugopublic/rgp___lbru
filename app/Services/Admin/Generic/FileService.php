@@ -60,7 +60,7 @@ class FileService
         $rootFolder = config('files.temp_folder');
 
         $this->baseDir = "{$rootFolder}";
-        $this->disk    = config('filesystems.default');
+        $this->disk    = config('files.temp_disk', config('filesystems.default', 'local'));
         $this->storage = Storage::disk($this->disk);
     }
 
