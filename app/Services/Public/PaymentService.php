@@ -80,6 +80,11 @@ final class PaymentService
             return $intent;
         }
 
+        // A retry must use the amount captured when this idempotency key was created.
+        // Using the current catalogue price here can produce a provider charge that
+        // no longer matches the stored intent after an administrator changes the price.
+        $amount = number_format((float) $intent->amount, 2, '.', '');
+
         $key = (string) $intent->idempotence_key;
         if ($key === '') {
             throw new RuntimeException('Платёжный intent не имеет ключа идемпотентности.');
