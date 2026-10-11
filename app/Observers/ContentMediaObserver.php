@@ -68,6 +68,40 @@ final class ContentMediaObserver
     }
 
     /**
+     * Handles deletion of models that do not use soft deletes.
+     *
+     * Soft-deleted content must retain its media. Models such as RecipeStep
+     * have no SoftDeletes trait, however, so their deleted event represents a
+     * permanent removal and their nested media directory must be cleaned.
+     *
+     * @param Model $model
+     * @return void
+     */
+    public function deleted(Model $model): void
+    {
+        if (method_exists($model, 'isForceDeleting') && $model->isForceDeleting()) {
+            return;
+        }
+
+        if (method_exists($model, 'trashed') && $model->trashed()) {
+            return;
+        }
+
+        if (!method_exists($model, 'mediaFolder')) {
+            return;
+        }
+
+        $folder = $model->mediaFolder();
+        $disks = method_exists($model, 'mediaDisks') ? $model->mediaDisks() : ['public'];
+
+        DB::afterCommit(static function () use ($folder, $disks): void {
+            foreach ($disks as $disk) {
+                Storage::disk($disk)->deleteDirectory($folder);
+            }
+        });
+    }
+
+    /**
      * Handles permanent deletion and its cleanup.
      *
      * @param Model $model
