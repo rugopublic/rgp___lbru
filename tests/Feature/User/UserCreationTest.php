@@ -16,5 +16,5 @@ test('creating a user resolves PrepareCreation through the container', function 
 
     expect($user->public_id)->toBeString()->not->toBeEmpty();
     expect(UserCookieSettings::query()->where('user_id', $user->id)->exists())->toBeTrue();
-    Storage::disk('private')->assertDirectoryExists($user->folder());
+    expect(Storage::disk('private')->directoryExists($user->folder()))->toBeTrue();
 });
