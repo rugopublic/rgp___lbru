@@ -72,11 +72,11 @@ final class ReferenceService
                     $this->repository->syncProducts($item, $productIds);
                 }
 
-                if ($seoData !== []) {
-                    $this->seo->update($this->seo->firstOrCreate($item), [
-                        'title' => $seoData['meta_title'] ?? null,
-                        'description' => $seoData['meta_description'] ?? null,
-                    ]);
+                if ($seoData !== [] && !$this->seo->update($this->seo->firstOrCreate($item), [
+                    'title' => $seoData['meta_title'] ?? null,
+                    'description' => $seoData['meta_description'] ?? null,
+                ])) {
+                    throw new RuntimeException('SEO справочника не сохранено.');
                 }
 
                 return true;

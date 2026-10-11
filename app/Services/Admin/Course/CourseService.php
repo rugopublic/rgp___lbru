@@ -88,10 +88,12 @@ final class CourseService
 
                 if ($seoData !== []) {
                     $seoModel = $this->seo->firstOrCreate($course);
-                    $this->seo->update($seoModel, [
+                    if (!$this->seo->update($seoModel, [
                         'title' => $seoData['meta_title'] ?? null,
                         'description' => $seoData['meta_description'] ?? null,
-                    ]);
+                    ])) {
+                        throw new RuntimeException('SEO курса не сохранено.');
+                    }
                 }
 
                 return true;

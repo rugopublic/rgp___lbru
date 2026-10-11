@@ -66,7 +66,12 @@ final class ProductService
                 if ($articleIds !== null) $this->repository->syncArticles($product, $articleIds);
                 if ($recipeIds !== null) $this->repository->syncRecipes($product, $recipeIds);
                 if ($referenceIds !== null) $this->repository->syncReferenceItems($product, $referenceIds);
-                if ($seoData!==[]) $this->seo->update($this->seo->firstOrCreate($product),['title'=>$seoData['meta_title']??null,'description'=>$seoData['meta_description']??null]);
+                if ($seoData !== [] && !$this->seo->update(
+                    $this->seo->firstOrCreate($product),
+                    ['title' => $seoData['meta_title'] ?? null, 'description' => $seoData['meta_description'] ?? null],
+                )) {
+                    throw new RuntimeException('SEO товара не сохранено.');
+                }
                 return true;
             });
         } catch(\Throwable $e){
