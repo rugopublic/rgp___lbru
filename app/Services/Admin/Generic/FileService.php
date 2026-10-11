@@ -165,49 +165,82 @@ class FileService
             }
         }
 
-        // Next up, merge the file.
-        // From 'file.ext.partX' we get the name 'file.ext'.
-        $name = Str::of($chunks->first())
-                    ->beforeLast('.')
-                    ->afterLast('/')
-                    ->toString();
+        // Resolve the complete chunk set in numeric order. Do not rely on
+        // filesystem listing order: remote adapters are not required to sort it.
+        $chunkNames = [];
+        $merged = null;
 
-        $merged = "{$path}/{$name}";
+        for ($chunkId = 1; $chunkId <= $chunksTotal; $chunkId++) {
+            $suffix = ".part{$chunkId}";
+            $matches = $chunks->filter(
+                static fn (string $chunk): bool => Str::endsWith($chunk, $suffix)
+            )->values();
 
-        $this->storage->put($merged, '');
+            if ($matches->count() !== 1) {
+                return false;
+            }
 
-        $absolutePath = $this->storage->path($merged);
+            $chunkName = $matches->first();
+            $candidate = substr($chunkName, 0, -strlen($suffix));
 
-        $stream = fopen($absolutePath, 'wb');
+            if ($merged !== null && $candidate !== $merged) {
+                // All chunks must belong to the same original file name.
+                return false;
+            }
+
+            $merged = $candidate;
+            $chunkNames[] = $chunkName;
+        }
+
+        if ($merged === null) {
+            return false;
+        }
+
+        // Use streams only. Filesystem adapters for S3/FTP/etc. do not
+        // necessarily expose a local absolute path through path().
+        $stream = fopen('php://temp/maxmemory:10485760', 'w+b');
+
+        if ($stream === false) {
+            return false;
+        }
 
         try {
-            for($chunkId = 1; $chunkId <= $chunksTotal; $chunkId++) {
-                $chunkName = "{$merged}.part{$chunkId}";
+            foreach ($chunkNames as $chunkName) {
                 $chunk = $this->storage->readStream($chunkName);
 
-                if($chunk === null) {
+                if ($chunk === null) {
                     throw new RuntimeException("Failed to read chunk {$chunkName}.");
                 }
 
-                if (stream_copy_to_stream($chunk, $stream) === false) {
-                    fclose($chunk);
-                    throw new RuntimeException("Failed to merge chunk {$chunkName}.");
+                try {
+                    if (stream_copy_to_stream($chunk, $stream) === false) {
+                        throw new RuntimeException("Failed to merge chunk {$chunkName}.");
+                    }
+                } finally {
+                    if (is_resource($chunk)) {
+                        fclose($chunk);
+                    }
                 }
+            }
 
-                fclose($chunk);
+            if (!rewind($stream) || !$this->storage->writeStream($merged, $stream)) {
+                throw new RuntimeException("Failed to write merged upload {$merged}.");
             }
         } catch (Throwable) {
-            // Cleanup of the incomplete file.
+            // Cleanup of any incomplete destination object.
             $this->storage->delete($merged);
 
             return false;
         } finally {
-            fclose($stream);
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
         }
 
-        // Cleanup of chunks after merging.
-        for($chunkId = 1; $chunkId <= $chunksTotal; $chunkId++)
-            $this->storage->delete("{$merged}.part{$chunkId}");
+        // Cleanup of chunks only after the merged object was written successfully.
+        foreach ($chunkNames as $chunkName) {
+            $this->storage->delete($chunkName);
+        }
 
         return $merged;
     }
