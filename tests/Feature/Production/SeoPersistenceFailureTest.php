@@ -29,6 +29,7 @@ use App\Services\Admin\Generic\FileService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
+/** Creates an SEO repository mock whose persistence operation fails. */
 function seoRepositoryThatRejectsUpdates(): SeoRepositoryInterface
 {
     $seo = Mockery::mock(SeoRepositoryInterface::class);
@@ -38,11 +39,13 @@ function seoRepositoryThatRejectsUpdates(): SeoRepositoryInterface
     return $seo;
 }
 
+/** Builds a rich-text media service for update tests that contain no pending images. */
 function emptyRichTextMediaService(): RichTextMediaService
 {
     return new RichTextMediaService(Mockery::mock(FileService::class));
 }
 
+/** Builds a media service for update tests that do not stage uploaded files. */
 function emptyContentMediaService(): ContentMediaService
 {
     return new ContentMediaService(Mockery::mock(FileService::class));
