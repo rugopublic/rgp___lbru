@@ -9,6 +9,7 @@ public/storage/
 .env
 .env.local
 .env.*
+!.env.example
 
 # Logs
 *.log
