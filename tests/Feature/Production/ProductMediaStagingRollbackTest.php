@@ -8,8 +8,8 @@ use App\Repositories\Contracts\ProductRepositoryInterface;
 use App\Repositories\Contracts\SeoRepositoryInterface;
 use App\Services\Admin\Content\ContentMediaService;
 use App\Services\Admin\Content\ProductService;
+use App\Services\Admin\Generic\FileService;
 use Illuminate\Support\Facades\Storage;
-use RuntimeException;
 
 it('cleans an already-placed product file when the next media placement fails', function (): void {
     Storage::fake('local');
@@ -20,22 +20,29 @@ it('cleans an already-placed product file when the next media placement fails', 
 
     $product = new Product();
     $product->setAttribute('public_id', 'product-staging-test');
-    $storedPath = 'products/product-staging-test/first-file.pdf';
+    $storedPath = null;
+    $firstUpload = '11111111-1111-4111-8111-111111111111';
+    $secondUpload = '22222222-2222-4222-8222-222222222222';
 
-    $media = Mockery::mock(ContentMediaService::class);
-    $media->shouldReceive('placeUpload')
+    $files = Mockery::mock(FileService::class);
+    $files->shouldReceive('ready')->once()->with($owner, $firstUpload)->andReturn(true);
+    $files->shouldReceive('extension')->once()->with($owner, $firstUpload, true)->andReturn('pdf');
+    $files->shouldReceive('mimeType')->once()->with($owner, $firstUpload)->andReturn('application/pdf');
+    $files->shouldReceive('size')->once()->with($owner, $firstUpload)->andReturn(128);
+    $files->shouldReceive('place')
         ->once()
-        ->with($owner, $product, '11111111-1111-4111-8111-111111111111', 'file')
-        ->andReturnUsing(function () use ($storedPath): string {
+        ->with($owner, $firstUpload, 'products/product-staging-test', Mockery::type('string'), true, 'local')
+        ->andReturnUsing(function ($owner, $uploadId, $folder, $name) use (&$storedPath): array {
+            $storedPath = $folder.'/'.$name.'.pdf';
             Storage::disk('local')->put($storedPath, 'file bytes');
-            return $storedPath;
-        });
-    $media->shouldReceive('diskForSlot')->once()->with('file')->andReturn('local');
-    $media->shouldReceive('placeUpload')
-        ->once()
-        ->with($owner, $product, '22222222-2222-4222-8222-222222222222', 'cover')
-        ->andThrow(new RuntimeException('Cover placement failed.'));
 
+            return ['success' => true, 'extension' => 'pdf'];
+        });
+
+    // The first upload succeeds. The second one fails before it can be placed.
+    $files->shouldReceive('ready')->once()->with($owner, $secondUpload)->andReturn(false);
+
+    $media = new ContentMediaService($files);
     $service = new ProductService(
         Mockery::mock(ProductRepositoryInterface::class),
         Mockery::mock(SeoRepositoryInterface::class),
@@ -43,9 +50,10 @@ it('cleans an already-placed product file when the next media placement fails', 
     );
 
     expect(fn () => $service->update($product, $owner, [
-        'file' => '11111111-1111-4111-8111-111111111111',
-        'cover' => '22222222-2222-4222-8222-222222222222',
-    ]))->toThrow(RuntimeException::class, 'Cover placement failed.');
+        'file' => $firstUpload,
+        'cover' => $secondUpload,
+    ]))->toThrow(RuntimeException::class, 'Загрузка ещё не готова к размещению.');
 
+    expect($storedPath)->toBeString();
     Storage::disk('local')->assertMissing($storedPath);
 });

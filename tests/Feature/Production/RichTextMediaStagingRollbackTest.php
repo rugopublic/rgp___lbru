@@ -7,7 +7,6 @@ use App\Models\User;
 use App\Services\Admin\Content\RichTextMediaService;
 use App\Services\Admin\Generic\FileService;
 use Illuminate\Support\Facades\Storage;
-use RuntimeException;
 
 it('removes inline images already placed when a later inline image is invalid', function (): void {
     Storage::fake('public');
