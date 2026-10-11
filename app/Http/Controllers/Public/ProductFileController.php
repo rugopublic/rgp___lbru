@@ -30,7 +30,7 @@ final class ProductFileController extends Controller
      * Handles the download HTTP action for the product file controller resource.
      *
      * @param string $product
-     * @return BinaryFileResponse
+     * @return StreamedResponse
      */
     public function download(string $product): StreamedResponse
     {
