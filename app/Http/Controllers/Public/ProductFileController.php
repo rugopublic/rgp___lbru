@@ -8,7 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\Contracts\ProductPurchaseRepositoryInterface;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 final class ProductFileController extends Controller
@@ -32,7 +32,7 @@ final class ProductFileController extends Controller
      * @param string $product
      * @return BinaryFileResponse
      */
-    public function download(string $product): BinaryFileResponse
+    public function download(string $product): StreamedResponse
     {
         $item = $this->products->findForAccess($product);
         abort_unless($item, 404);
@@ -53,8 +53,8 @@ final class ProductFileController extends Controller
         $mime = $disk->mimeType($path) ?: 'application/octet-stream';
         $filename = basename($path);
 
-        return response()->download(
-            $disk->path($path),
+        return $disk->download(
+            $path,
             $filename,
             [
                 'Content-Type' => $mime,
