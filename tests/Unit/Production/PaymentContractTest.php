@@ -9,8 +9,8 @@ it('keeps YooKassa payment creation and fulfillment idempotent', function () {
     $controller = file_get_contents(base_path('app/Http/Controllers/Public/PaymentController.php'));
 
     expect($client)
-        ->toContain("'Idempotence-Key' => $key")
-        ->toContain("Authorization: Basic");
+        ->toContain("'Idempotence-Key' => \$key")
+        ->toContain('Http::withBasicAuth($shopId,$secret)');
 
     expect($payment)
         ->toContain('idempotency_key')
@@ -39,9 +39,9 @@ it('keeps YooKassa payment creation and fulfillment idempotent', function () {
 it('does not cancel an intent on a provider-side transport/persistence uncertainty', function () {
     $payment = file_get_contents(base_path('app/Services/Public/PaymentService.php'));
 
-    expect($payment)->toContain("'error_code'=>$e->getCode()")
+    expect($payment)->toContain("'error_code'=>\$e->getCode()")
         ->toContain('// Keep the intent reusable.')
-        ->not->toContain("'status'=>'canceled','payload'=>['error'=>$e->getMessage()]");
+        ->not->toContain("'status'=>'canceled','payload'=>['error'=>\$e->getMessage()]");
 });
 
 it('keeps the public payment route contract explicit', function () {

@@ -101,8 +101,8 @@ it('keeps the canonical database baseline compatible with RichTextarea', functio
         ->not->toContain("Schema::create('seo_data'");
     expect($request)->toContain("'objective'=>['sometimes','nullable','string','max:10000']");
     expect($request)->toContain("'skills'=>['sometimes','nullable','string','max:10000']");
-    expect($model)->toContain("'objective'=>CleanHtmlInput::class");
-    expect($model)->toContain("'skills'=>CleanHtmlInput::class");
+    expect($model)->toMatch('/\'objective\'\s*=>\s*CleanHtmlInput::class/');
+    expect($model)->toMatch('/\'skills\'\s*=>\s*CleanHtmlInput::class/');
 });
 
 it('does not duplicate the lesson quiz editor in the sidebar', function () {
@@ -151,7 +151,7 @@ it('keeps public commerce links on content surfaces', function () {
     expect($article)->toContain("frontend.components.related-products");
     expect($recipe)->toContain("frontend.components.related-products");
     expect($ingredient)->toContain("frontend.components.related-products");
-    expect($product)->toContain('productPurchase');
+    expect($product)->toContain("route('products.buy'")->toContain("route('products.download'");
 });
 
 it('keeps YooKassa webhook named and protected by provider status re-fetch', function () {
@@ -160,7 +160,7 @@ it('keeps YooKassa webhook named and protected by provider status re-fetch', fun
     $client = file_get_contents(base_path('app/Services/Public/YooKassaClient.php'));
 
     expect($routes)->toContain("->name('payments.webhook')");
-    expect($controller)->toContain("$this->yookassa->getPayment($paymentId)");
+    expect($controller)->toContain('$this->yookassa->getPayment($paymentId)');
     expect($controller)->toContain('IpUtils::checkIp');
-    expect($client)->toContain("'Idempotence-Key' => $key");
+    expect($client)->toContain("'Idempotence-Key' => \$key");
 });
