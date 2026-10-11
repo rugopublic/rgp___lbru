@@ -9,20 +9,20 @@ it('keeps the public sales funnel wired to real commerce actions', function () {
     $related = file_get_contents(base_path('resources/web/frontend/components/related-products.blade.php'));
 
     expect($course)
-        ->toContain('route(\'courses.buy\'', 'Course page must expose a purchase CTA.')
-        ->toContain('number_format((float) $course->price', 'Course page must make price visible.')
+        ->toContain("route('courses.buy'")
+        ->toContain('number_format((float) $course->price')
         ->toContain('objective')
         ->toContain('skills')
         ->toContain('course->lessons')
         ->toContain('course->teachers');
 
     expect($product)
-        ->toContain('route(\'products.buy\'')
-        ->toContain('route(\'products.download\'')
-        ->toContain('frontend.components.related-products');
+        ->toContain("route('products.buy'")
+        ->toContain("route('products.download'")
+        ->toContain('frontend.components.content-card');
 
     expect($checkout)
-        ->toContain("route('payments.pay',[$type,$item->public_id])")
+        ->toContain("route('payments.pay',[\$type,\$item->public_id])")
         ->toContain("route('eula')");
 
     expect($related)->toContain("route('products.show'");
@@ -51,6 +51,6 @@ it('reuses one related-product component across selling content surfaces', funct
         'resources/web/frontend/catalog/ingredient.blade.php',
     ] as $view) {
         expect(file_get_contents(base_path($view)))
-            ->toContain("frontend.components.related-products", "Missing shared commerce partial in {$view}");
+        ->toContain('frontend.components.related-products');
     }
 });

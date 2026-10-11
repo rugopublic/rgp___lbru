@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 it('keeps the production scheduler complete and duplicate-safe by construction', function () {
     $console = file_get_contents(base_path('routes/console.php'));
-    $publishJob = file_get_contents(base_path('app/Jobs/PublishScheduledContent.php'));
+    $publishJob = file_get_contents(base_path('app/Jobs/PublishScheduledContentItem.php'));
     $scanner = file_get_contents(base_path('app/Console/Commands/ScanOrphanMedia.php'));
 
     expect($console)
@@ -15,7 +15,7 @@ it('keeps the production scheduler complete and duplicate-safe by construction',
     expect($publishJob)
         ->toContain('ShouldQueue')
         ->toContain('WithoutOverlapping')
-        ->toContain('idempotent');
+        ->toContain('publishIfDue');
 
     expect($scanner)
         ->toContain("{--delete : Delete folders older than the safety window}")
@@ -26,10 +26,12 @@ it('keeps stale development hot-file out of the production artifact', function (
     expect(is_file(base_path('public/hot')))->toBeFalse();
 });
 
-it('keeps the admin bootstrap path explicit', function () {
-    $commands = projectFilesForContract(base_path('app/Console/Commands'));
+it('keeps the documented administrator bootstrap command available', function () {
+    $command = file_get_contents(base_path('app/Console/Commands/CreateAdminUser.php'));
 
-    expect(implode("\n", $commands))->toContain('AdminBootstrap');
+    expect($command)
+        ->toContain('class CreateAdminUser')
+        ->toContain('likablog:admin');
 });
 
     /**

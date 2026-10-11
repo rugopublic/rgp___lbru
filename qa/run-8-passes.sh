@@ -19,7 +19,7 @@ run_pass() {
   } | tee "$log"
 }
 
-run_pass 1 "baseline-and-final-static-gate" './qa/production-audit.sh'
+run_pass 1 "baseline-and-final-static-gate" 'bash qa/production-audit.sh'
 
 run_pass 2 "PHP-syntax" '
   set -e
@@ -80,7 +80,7 @@ run_pass 7 "payments-scheduler-and-media" '
   echo "PASS payment + scheduler + media + production artifact checks"
 '
 
-run_pass 8 "release-recheck" './qa/production-audit.sh'
+run_pass 8 "release-recheck" 'bash qa/production-audit.sh'
 
 echo "8-PASS QA COMPLETE"
 echo "Logs: $OUT"

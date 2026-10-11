@@ -117,7 +117,7 @@ PHP
 python3 - <<'PY'
 from pathlib import Path
 root=Path('.')
-js=[p for p in root.rglob('*.js') if 'node_modules' not in p.parts and 'build' not in p.parts]
+js=[p for p in root.rglob('*.js') if not ({'vendor', 'node_modules', 'build', 'dist', '.git', 'storage'} & set(p.parts))]
 missing=[]
 for p in js:
     lines=p.read_text(encoding='utf-8',errors='ignore').lstrip('\ufeff').splitlines()
