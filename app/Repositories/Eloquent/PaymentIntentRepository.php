@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Repositories\Eloquent;
 
 use App\Models\PaymentIntent;
+use App\Models\Product;
+use App\Models\Course;
 use App\Repositories\Contracts\PaymentIntentRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 
@@ -45,7 +47,15 @@ final class PaymentIntentRepository extends Repository implements PaymentIntentR
      * @param string $providerPaymentId
      * @return ?Model
      */
-    public function findByProviderPaymentIdForUpdate(string $providerPaymentId): ?Model { return PaymentIntent::query()->where('provider_payment_id',$providerPaymentId)->with('purchasable')->lockForUpdate()->first(); }
+    public function findByProviderPaymentIdForUpdate(string $providerPaymentId): ?Model
+    {
+        $intent = PaymentIntent::query()
+            ->where('provider_payment_id', $providerPaymentId)
+            ->lockForUpdate()
+            ->first();
+
+        return $intent ? $this->loadPurchasableIncludingTrashed($intent) : null;
+    }
 
     /**
      * Queries for user and returns the matching persistence model.
@@ -54,7 +64,36 @@ final class PaymentIntentRepository extends Repository implements PaymentIntentR
      * @param int $userId
      * @return Model
      */
-    public function findForUser(int $intentId, int $userId): Model { return PaymentIntent::query()->whereKey($intentId)->where('user_id',$userId)->with('purchasable')->firstOrFail(); }
+    public function findForUser(int $intentId, int $userId): Model
+    {
+        $intent = PaymentIntent::query()
+            ->whereKey($intentId)
+            ->where('user_id', $userId)
+            ->firstOrFail();
+
+        return $this->loadPurchasableIncludingTrashed($intent);
+    }
+
+    /**
+     * Resolves purchasable content that may have been soft-deleted after checkout began.
+     *
+     * A pending provider payment remains valid even if an administrator temporarily
+     * hides the product or course while the customer completes the hosted checkout.
+     * Fulfillment still needs the original row to create the transaction and grant the
+     * purchase/enrollment record.
+     */
+    private function loadPurchasableIncludingTrashed(PaymentIntent $intent): PaymentIntent
+    {
+        $purchasable = match ($intent->purchasable_type) {
+            Product::class => Product::withTrashed()->find($intent->purchasable_id),
+            Course::class => Course::withTrashed()->find($intent->purchasable_id),
+            default => $intent->purchasable,
+        };
+
+        $intent->setRelation('purchasable', $purchasable);
+
+        return $intent;
+    }
 
     /**
      * Persists a new record through the repository model.
