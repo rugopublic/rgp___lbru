@@ -12,6 +12,7 @@ use App\Repositories\Contracts\PaymentIntentRepositoryInterface;
 use App\Services\Public\PaymentFulfillmentService;
 use App\Services\Public\PaymentService;
 use App\Services\Public\YooKassaClient;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,7 +52,7 @@ final class PaymentController extends Controller
     public function checkoutCourse(string $course): View
     {
         $item=$this->courses->findPublished($course); abort_unless($item,404);
-        return view('frontend.checkout.index',['item'=>$item,'type'=>'course','price'=>$item->price]);
+        return view('frontend.checkout.index',['item'=>$item,'type'=>'course','price'=>$this->checkoutPrice($item)]);
     }
 
     /**
@@ -63,7 +64,28 @@ final class PaymentController extends Controller
     public function checkoutProduct(string $product): View
     {
         $item=$this->products->findSellable($product); abort_unless($item,404);
-        return view('frontend.checkout.index',['item'=>$item,'type'=>'product','price'=>$item->price]);
+        return view('frontend.checkout.index',['item'=>$item,'type'=>'product','price'=>$this->checkoutPrice($item)]);
+    }
+
+    /**
+     * Uses the locked amount of a still-pending payment when resuming checkout.
+     *
+     * @param Model $item
+     * @return string|float|int
+     */
+    private function checkoutPrice(Model $item): string|float|int
+    {
+        if (!auth()->check()) {
+            return $item->price;
+        }
+
+        $intent = $this->intents->findReusableForUserItem(
+            (int) auth()->id(),
+            $item::class,
+            (int) $item->id,
+        );
+
+        return $intent?->amount ?? $item->price;
     }
 
     /**
