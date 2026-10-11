@@ -69,7 +69,7 @@ class GraceImpending extends Notification implements ShouldQueue
             )
             ->action(
                 __(self::TRANS_KEY . ".action"),
-                route('user.restore')
+                route('user.delete.pending')
             );
     }
 
