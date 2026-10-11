@@ -22,7 +22,7 @@ it('keeps the public sales funnel wired to real commerce actions', function () {
         ->toContain('frontend.components.content-card');
 
     expect($checkout)
-        ->toContain("route('payments.pay',[$type,$item->public_id])")
+        ->toContain("route('payments.pay',[\$type,\$item->public_id])")
         ->toContain("route('eula')");
 
     expect($related)->toContain("route('products.show'");

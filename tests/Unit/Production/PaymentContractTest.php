@@ -13,7 +13,7 @@ it('keeps YooKassa payment creation and fulfillment idempotent', function () {
         ->toContain('Http::withBasicAuth($shopId,$secret)');
 
     expect($payment)
-        ->toContain('idempotency_key')
+        ->toContain('idempotence_key')
         ->toContain('pending');
 
     expect($fulfillment)
