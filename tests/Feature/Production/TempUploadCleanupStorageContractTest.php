@@ -15,8 +15,16 @@ it('cleans temporary uploads from the same configured disk and root used for upl
         'files.temp_path' => 'legacy-wrong-root',
     ]);
 
-    Storage::fake('s3');
     Storage::fake('local');
+    config([
+        'filesystems.disks.s3' => [
+            'driver' => 'local',
+            'root' => storage_path('framework/testing/disks/temp-upload-s3'),
+            'throw' => false,
+            'report' => false,
+        ],
+    ]);
+    Storage::forgetDisk('s3');
 
     $owner = new User();
     $owner->setAttribute('id', 7391);
