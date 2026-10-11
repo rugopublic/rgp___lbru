@@ -60,21 +60,21 @@ final class CourseService
         $data = $incoming->all();
         $placed = [];
 
-        foreach (['pitch', 'objective', 'skills'] as $field) {
-            if (!array_key_exists($field, $data)) {
-                continue;
+        try {
+            foreach (['pitch', 'objective', 'skills'] as $field) {
+                if (!array_key_exists($field, $data)) {
+                    continue;
+                }
+
+                $resolved = $this->richText->resolvePendingImages($owner, $course, $data[$field]);
+                $data[$field] = $resolved['html'];
+                $placed = array_merge($placed, $resolved['paths']);
             }
 
-            $resolved = $this->richText->resolvePendingImages($owner, $course, $data[$field]);
-            $data[$field] = $resolved['html'];
-            $placed = array_merge($placed, $resolved['paths']);
-        }
+            if (array_key_exists('cover', $data)) {
+                $this->placeCover($course, $owner, $data, $placed);
+            }
 
-        if (array_key_exists('cover', $data)) {
-            $this->placeCover($course, $owner, $data, $placed);
-        }
-
-        try {
             $ok = DB::transaction(function () use ($course, $data): bool {
                 $seoData = array_intersect_key($data, array_flip(['meta_title', 'meta_description']));
                 unset($data['meta_title'], $data['meta_description']);

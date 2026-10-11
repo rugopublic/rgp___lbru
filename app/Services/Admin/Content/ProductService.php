@@ -47,20 +47,27 @@ final class ProductService
     public function update(Model $product, User $owner, array $data): bool
     {
         $placed=[];
-        foreach (['file','cover'] as $field) $this->placeSingle($product,$owner,$data,$field,$field,$placed);
         try {
+            foreach (['file','cover'] as $field) {
+                $this->placeSingle($product, $owner, $data, $field, $field, $placed);
+            }
+
             return DB::transaction(function() use($product,$data):bool{
                 $seoData=array_intersect_key($data,array_flip(['meta_title','meta_description']));
                 $articleIds = $data['article_ids'] ?? null;
                 $recipeIds = $data['recipe_ids'] ?? null;
                 $referenceIds = $data['reference_item_ids'] ?? null;
                 unset($data['meta_title'],$data['meta_description'],$data['file_remove'],$data['cover_remove'],$data['article_ids'],$data['recipe_ids'],$data['reference_item_ids']);
-                $result=$this->repository->update($product,$data);
+                $result = $this->repository->update($product, $data);
+                if (!$result) {
+                    throw new RuntimeException('Товар не сохранён.');
+                }
+
                 if ($articleIds !== null) $this->repository->syncArticles($product, $articleIds);
                 if ($recipeIds !== null) $this->repository->syncRecipes($product, $recipeIds);
                 if ($referenceIds !== null) $this->repository->syncReferenceItems($product, $referenceIds);
                 if ($seoData!==[]) $this->seo->update($this->seo->firstOrCreate($product),['title'=>$seoData['meta_title']??null,'description'=>$seoData['meta_description']??null]);
-                return $result;
+                return true;
             });
         } catch(\Throwable $e){
             foreach($placed as [$path, $disk]) Storage::disk($disk)->delete($path);

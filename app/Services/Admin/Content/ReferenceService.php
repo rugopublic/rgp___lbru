@@ -10,6 +10,7 @@ use App\Repositories\Contracts\SeoRepositoryInterface;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 final class ReferenceService
 {
@@ -41,10 +42,52 @@ final class ReferenceService
      * @param array $data
      * @return bool
      */
-    public function update(Model $item,User $owner,array $data):bool{
-        $placed=[];$resolved=$this->richText->resolvePendingImages($owner,$item,$data['body']??null);if(array_key_exists('body',$data)){$data['body']=$resolved['html'];$placed=$resolved['paths'];}
-        if(array_key_exists('cover',$data))$this->placeSingle($item,$owner,$data,'cover','cover',$placed);
-        try{return DB::transaction(function()use($item,$data):bool{$seoData=array_intersect_key($data,array_flip(['meta_title','meta_description']));unset($data['meta_title'],$data['meta_description'],$data['cover_remove']);$productIds=$data['product_ids']??null;unset($data['product_ids']);$ok=$this->repository->update($item,$data);if($productIds!==null)$this->repository->syncProducts($item,$productIds);if($seoData!==[]) $this->seo->update($this->seo->firstOrCreate($item),['title'=>$seoData['meta_title']??null,'description'=>$seoData['meta_description']??null]);return $ok;});}catch(\Throwable $e){foreach($placed as $path)Storage::disk('public')->delete($path);throw $e;}
+    public function update(Model $item, User $owner, array $data): bool
+    {
+        $placed = [];
+
+        try {
+            $resolved = $this->richText->resolvePendingImages($owner, $item, $data['body'] ?? null);
+            if (array_key_exists('body', $data)) {
+                $data['body'] = $resolved['html'];
+                $placed = $resolved['paths'];
+            }
+
+            if (array_key_exists('cover', $data)) {
+                $this->placeSingle($item, $owner, $data, 'cover', 'cover', $placed);
+            }
+
+            return DB::transaction(function () use ($item, $data): bool {
+                $seoData = array_intersect_key($data, array_flip(['meta_title', 'meta_description']));
+                unset($data['meta_title'], $data['meta_description'], $data['cover_remove']);
+                $productIds = $data['product_ids'] ?? null;
+                unset($data['product_ids']);
+
+                $saved = $this->repository->update($item, $data);
+                if (!$saved) {
+                    throw new RuntimeException('Справочник не сохранён.');
+                }
+
+                if ($productIds !== null) {
+                    $this->repository->syncProducts($item, $productIds);
+                }
+
+                if ($seoData !== []) {
+                    $this->seo->update($this->seo->firstOrCreate($item), [
+                        'title' => $seoData['meta_title'] ?? null,
+                        'description' => $seoData['meta_description'] ?? null,
+                    ]);
+                }
+
+                return true;
+            });
+        } catch (\Throwable $e) {
+            foreach ($placed as $path) {
+                Storage::disk('public')->delete($path);
+            }
+
+            throw $e;
+        }
     }
 
     /**
