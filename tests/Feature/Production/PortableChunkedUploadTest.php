@@ -69,7 +69,7 @@ it('does not merge chunk sets with inconsistent original file names', function (
     );
 
     $second = $files->upload(
-        UploadedFile::fake()->createWithContent('different.pdf', 'second'),
+        UploadedFile::fake()->createWithContent('different.png', 'second'),
         $owner,
         $uploadId,
         2,
