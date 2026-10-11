@@ -38,6 +38,14 @@ return [
             'report' => false,
         ],
 
+        // Private user-owned files must not be exposed through the public storage symlink.
+        'private' => [
+            'driver' => 'local',
+            'root' => storage_path('app/private'),
+            'throw' => false,
+            'report' => false,
+        ],
+
         'backup' => [
             'driver' => 'local',
             'root' => base_path('.backups'),
