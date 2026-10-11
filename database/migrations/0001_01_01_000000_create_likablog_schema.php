@@ -717,7 +717,7 @@ return new class extends Migration
             $table->unsignedBigInteger('likeable_id')->nullable();
             $table->timestamps();
             $table->index(['likeable_type', 'likeable_id']);
-            $table->unique(['user_id', 'likeable_type', 'likeable_id']);
+            $table->unique(['user_id', 'likeable_type', 'likeable_id'], 'content_likes_owner_target_unique');
         });
 
         Schema::create('content_bookmarks', function (Blueprint $table): void {
@@ -727,7 +727,7 @@ return new class extends Migration
             $table->unsignedBigInteger('bookmarkable_id')->nullable();
             $table->timestamps();
             $table->index(['bookmarkable_type', 'bookmarkable_id']);
-            $table->unique(['user_id', 'bookmarkable_type', 'bookmarkable_id']);
+            $table->unique(['user_id', 'bookmarkable_type', 'bookmarkable_id'], 'content_bookmarks_owner_target_unique');
         });
 
         Schema::create('content_comments', function (Blueprint $table): void {
