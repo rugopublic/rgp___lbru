@@ -19,7 +19,13 @@ it('keeps YooKassa payment creation and fulfillment idempotent', function () {
     expect($fulfillment)
         ->toContain('ProductPurchase')
         ->toContain('CourseEnrollment')
-        ->toContain('updateOrCreate');
+        ->toContain('upsertForPayment');
+
+    $productPurchases = file_get_contents(base_path('app/Repositories/Eloquent/ProductPurchaseRepository.php'));
+    $courseEnrollments = file_get_contents(base_path('app/Repositories/Eloquent/CourseEnrollmentRepository.php'));
+
+    expect($productPurchases)->toContain('updateOrCreate');
+    expect($courseEnrollments)->toContain('updateOrCreate');
 
     $paymentRepository = file_get_contents(base_path('app/Repositories/Eloquent/PaymentIntentRepository.php'));
 

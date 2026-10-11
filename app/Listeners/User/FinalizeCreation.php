@@ -3,7 +3,6 @@
 namespace App\Listeners\User;
 
 use App\Events\User\Created as UserCreated;
-use App\Models\User\UserCookieSettings;
 use App\Services\Cookie\CookieConsentService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -25,6 +24,14 @@ use Throwable;
  */
 class FinalizeCreation
 {
+    /**
+     * Resolve cookie-consent dependencies through Laravel's service container.
+     */
+    public function __construct(
+        private readonly CookieConsentService $cookieConsentService,
+    ) {
+    }
+
     /**
      * Handle the event.
      *
@@ -58,7 +65,14 @@ class FinalizeCreation
             Log::error("Failed to create folder for user {$user->id}: {$e->getMessage()}");
         }
 
-        $cookieConsentService = new CookieConsentService;
-        $cookieConsentService->initializeUserCookieSettings($user);
+        try {
+            $this->cookieConsentService->initializeUserCookieSettings($user);
+        } catch (Throwable $e) {
+            // Cookie-preference initialization must not roll back or break account creation.
+            Log::error('Failed to initialize cookie consent settings for new user.', [
+                'user_id' => $user->id,
+                'exception' => $e,
+            ]);
+        }
     }
 }
