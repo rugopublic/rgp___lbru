@@ -39,7 +39,11 @@ final class PublishScheduledContentItem implements ShouldQueue
      */
     public function middleware(): array
     {
-        return [new WithoutOverlapping("publish:{$this->type}:{$this->id}")];
+        return [
+            (new WithoutOverlapping("publish:{$this->type}:{$this->id}"))
+                ->releaseAfter(10)
+                ->expireAfter(60),
+        ];
     }
 
     /**
