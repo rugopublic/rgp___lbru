@@ -41,7 +41,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Set up PHP
-        uses: shivammathai/setup-php@v2
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           extensions: bcmath, curl, fileinfo, gd, intl, mbstring, mysqli, pdo_mysql, zip
