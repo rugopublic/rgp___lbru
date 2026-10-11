@@ -49,8 +49,9 @@ jobs:
           tools: composer:v2
       - name: Prepare environment
         run: |
-          if [[ -f .env.example ]]; then cp .env.example .env; else touch .env; fi
-          mkdir -p bootstrap/cache
+          if [[ -f .env.example ]]; then cp .env.example .env; else printf 'APP_KEY=\n' > .env; fi
+          grep -q '^APP_KEY=' .env || printf '\nAPP_KEY=\n' >> .env
+          mkdir -p bootstrap/cache storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
       - name: Generate application key
