@@ -82,7 +82,7 @@ return Application::configure(basePath: dirname(__DIR__))
                             });
                     });
 
-                Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+                Route::middleware(['auth', 'not.suspended', 'admin'])->prefix('admin')->name('admin.')->group(function () {
                     require base_path('routes/web/admin/main.php');
                 });
 
