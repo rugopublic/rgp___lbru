@@ -59,7 +59,12 @@ final class ArticleService
                 unset($data['meta_title'],$data['meta_description'],$data['cover_remove']);$productIds=$data['product_ids']??null;unset($data['product_ids']);
                 $saved = $this->repository->update($article,$data);
                 if ($productIds !== null) $this->repository->syncProducts($article, $productIds);
-                if ($seoData !== []) $this->seo->update($this->seo->firstOrCreate($article),['title'=>$seoData['meta_title']??null,'description'=>$seoData['meta_description']??null]);
+                if ($seoData !== [] && !$this->seo->update(
+                    $this->seo->firstOrCreate($article),
+                    ['title' => $seoData['meta_title'] ?? null, 'description' => $seoData['meta_description'] ?? null],
+                )) {
+                    throw new RuntimeException('SEO статьи не сохранено.');
+                }
                 return $saved;
             });
             if (!$ok) throw new RuntimeException('Статья не сохранена.');

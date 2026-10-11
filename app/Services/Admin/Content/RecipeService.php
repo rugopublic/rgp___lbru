@@ -89,11 +89,11 @@ final class RecipeService
                 if ($products !== null) $this->repository->syncProducts($recipe, $products);
                 if ($structure !== null) $this->structureService->sync($recipe, $structure['groups'] ?? []);
                 if ($stepData !== null) $this->syncSteps($recipe, $owner, is_array($stepData) ? $stepData : [], $placed);
-                if ($seoData !== []) {
-                    $this->seo->update($this->seo->firstOrCreate($recipe), [
-                        'title' => $seoData['meta_title'] ?? null,
-                        'description' => $seoData['meta_description'] ?? null,
-                    ]);
+                if ($seoData !== [] && !$this->seo->update($this->seo->firstOrCreate($recipe), [
+                    'title' => $seoData['meta_title'] ?? null,
+                    'description' => $seoData['meta_description'] ?? null,
+                ])) {
+                    throw new RuntimeException('SEO рецепта не сохранено.');
                 }
                 return true;
             });
