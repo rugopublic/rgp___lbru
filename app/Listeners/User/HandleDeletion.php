@@ -6,6 +6,8 @@ use App\Events\User\Deleted as UserDeleted;
 use App\Notifications\User\Delete\GraceExpired as GraceExpiredNotification;
 use App\Notifications\User\Delete\GraceStarted as GraceStartedNotification;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 /**
  * Listener for handling user deletions.
@@ -27,9 +29,28 @@ class HandleDeletion
 
         // Check whether it's a force delete
         if (method_exists($user, 'isForceDeleting') && $user->isForceDeleting()) {
-            $user->notify(new GraceExpiredNotification());
+            // This event runs after the user row has been deleted. Send this one
+            // notification synchronously from the in-memory snapshot; queued model
+            // serialization would fail because the user no longer exists in the DB.
+            try {
+                $user->notify(new GraceExpiredNotification());
+            } catch (Throwable $e) {
+                Log::error('Failed to send account-deletion completion notice.', [
+                    'user_id' => $user->id,
+                    'exception' => $e,
+                ]);
+            }
 
-            Storage::disk('local')->deleteDirectory($user->folder);
+            // User files are owned by the private disk, not the default/public disk.
+            try {
+                Storage::disk('private')->deleteDirectory($user->folder);
+            } catch (Throwable $e) {
+                Log::error('Failed to clean private storage for deleted user.', [
+                    'user_id' => $user->id,
+                    'folder' => $user->folder,
+                    'exception' => $e,
+                ]);
+            }
 
             // TODO: optionally clean pivot tables, tags, etc (can be done by CASCADE).
         } else {
