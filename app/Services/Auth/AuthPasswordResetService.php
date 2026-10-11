@@ -78,7 +78,7 @@ class AuthPasswordResetService
             });
         } catch(Throwable $e) {
             Log::error('Failed to initialize the token', [
-                'token' => $token,
+                'token_id' => $token->email,
                 'error' => $e->getMessage(),
             ]);
             return false;
@@ -129,17 +129,32 @@ class AuthPasswordResetService
      */
     public function reset(string $token, string $newPassword): bool
     {
-        // Before proceeding, it's important to validate the token again.
-        if(!$this->validate($token)) {
-            // Error: this token has expired in the meantime.
-            return false;
-        }
+        return DB::transaction(function () use ($token, $newPassword): bool {
+            // Lock and re-check the token in the same transaction as consuming it.
+            // This prevents concurrent requests from successfully using the same token.
+            $passwordResetToken = $this->tokens->findByTokenForUpdate($token);
 
-        $passwordResetToken = $this->tokens->findByToken($token);
-        $user = $passwordResetToken->user;
+            if (!$passwordResetToken || $passwordResetToken->isExpired()) {
+                return false;
+            }
 
-        $this->tokens->delete($passwordResetToken);
+            $user = $passwordResetToken->user;
+            if (!$user) {
+                return false;
+            }
 
-        return $this->users->update($user, ['password' => bcrypt($newPassword), 'password_changed_at' => now()]);
+            if (!$this->tokens->delete($passwordResetToken)) {
+                return false;
+            }
+
+            if (!$this->users->update($user, [
+                'password' => bcrypt($newPassword),
+                'password_changed_at' => now(),
+            ])) {
+                throw new RuntimeException('Password reset could not be committed.');
+            }
+
+            return true;
+        });
     }
 }

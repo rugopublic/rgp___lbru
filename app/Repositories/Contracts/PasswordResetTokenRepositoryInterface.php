@@ -18,6 +18,14 @@ interface PasswordResetTokenRepositoryInterface
     public function findByToken(string $token): ?PasswordResetToken;
 
     /**
+     * Locks a matching password-reset token row for atomic single-use consumption.
+     *
+     * @param string $token
+     * @return ?PasswordResetToken
+     */
+    public function findByTokenForUpdate(string $token): ?PasswordResetToken;
+
+    /**
      * Queries or persists delete by email for the password reset token repository interface repository.
      *
      * @param string $email
