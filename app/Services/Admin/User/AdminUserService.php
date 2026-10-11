@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Repositories\Contracts\UserRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use RuntimeException;
 
 final class AdminUserService
 {
@@ -42,7 +43,11 @@ final class AdminUserService
             $data['email_verified_at'] = now();
 
             $user = $this->users->create($data);
-            $this->users->updateAccount($user, ['name' => $name]);
+
+            if (!$this->users->updateAccount($user, ['name' => $name])) {
+                throw new RuntimeException('Профиль пользователя не сохранён.');
+            }
+
             $this->users->syncGroups($user, $groupIds);
 
             return $user;
@@ -75,12 +80,12 @@ final class AdminUserService
                 }
             }
 
-            if ($data !== []) {
-                $this->users->update($user, $data);
+            if ($data !== [] && !$this->users->update($user, $data)) {
+                throw new RuntimeException('Пользователь не сохранён.');
             }
 
-            if ($name !== null) {
-                $this->users->updateAccount($user, ['name' => $name]);
+            if ($name !== null && !$this->users->updateAccount($user, ['name' => $name])) {
+                throw new RuntimeException('Профиль пользователя не сохранён.');
             }
 
             if ($groupIds !== null) {
