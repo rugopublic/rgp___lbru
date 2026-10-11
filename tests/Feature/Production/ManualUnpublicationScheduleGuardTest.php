@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Models\Article;
 use App\Models\Recipe;
+use App\Models\User;
 use App\Repositories\Eloquent\ArticleRepository;
 use App\Repositories\Eloquent\RecipeRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -45,7 +46,10 @@ it('still publishes an article scheduled before its publish time', function (): 
 });
 
 it('does not republish a recipe demoted after its scheduled time', function (): void {
+    $author = User::factory()->create();
+
     $recipe = Recipe::query()->create([
+        'author_id' => $author->id,
         'title' => 'Demoted recipe',
         'description' => 'Should remain a draft.',
         'visibility_status' => 'draft',
@@ -59,8 +63,10 @@ it('does not republish a recipe demoted after its scheduled time', function (): 
 });
 
 it('still publishes a recipe scheduled before its publish time', function (): void {
+    $author = User::factory()->create();
     $publishAt = now()->subMinute();
     $recipe = Recipe::query()->create([
+        'author_id' => $author->id,
         'title' => 'Due scheduled recipe',
         'description' => 'Should become published.',
         'visibility_status' => 'draft',
