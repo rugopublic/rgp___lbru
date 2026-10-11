@@ -141,6 +141,7 @@ it('cleans staged recipe media when persistence returns false', function (): voi
         $repository,
         Mockery::mock(RecipeStepRepositoryInterface::class),
         Mockery::mock(SeoRepositoryInterface::class),
+        new ContentMediaService($files),
         new RichTextMediaService($files),
         new RecipeStructureService(Mockery::mock(RecipeStructureRepositoryInterface::class)),
     );
