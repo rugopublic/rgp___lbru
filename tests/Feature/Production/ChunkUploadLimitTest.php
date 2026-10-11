@@ -14,7 +14,7 @@ it('rejects excessive chunk counts before writing a temporary upload', function 
     config([
         'filesystems.default' => 'local',
         'files.temp_folder' => 'temp',
-        'files.max_chunks' => 32,
+        'uploads.max_chunks' => 32,
     ]);
 
     $user = User::factory()->create([
@@ -38,7 +38,7 @@ it('accepts a chunk count within the configured limit', function (): void {
     config([
         'filesystems.default' => 'local',
         'files.temp_folder' => 'temp',
-        'files.max_chunks' => 32,
+        'uploads.max_chunks' => 32,
     ]);
 
     $user = User::factory()->create([
