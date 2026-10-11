@@ -22,6 +22,17 @@ final class PasswordResetTokenRepository implements PasswordResetTokenRepository
     }
 
     /**
+     * Locks a matching password-reset token row for atomic single-use consumption.
+     *
+     * @param string $token
+     * @return ?PasswordResetToken
+     */
+    public function findByTokenForUpdate(string $token): ?PasswordResetToken
+    {
+        return PasswordResetToken::query()->where('token', $token)->lockForUpdate()->first();
+    }
+
+    /**
      * Queries or persists delete by email for the password reset token repository repository.
      *
      * @param string $email

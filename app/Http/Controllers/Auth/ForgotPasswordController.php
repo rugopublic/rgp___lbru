@@ -150,7 +150,7 @@ class ForgotPasswordController extends Controller
         // If anything goes wrong on a service layer, just render the 'bad link' page for the end user.
         // This will force them to re-request the token.
         if(!$this->service->reset($token, $password)) {
-            Log::info('Password reset attempt failed', ['token' => $token]);
+            Log::info('Password reset attempt failed.');
             return view('frontend.auth.password.expired');
         }
 
