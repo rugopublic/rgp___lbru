@@ -1,32 +1,32 @@
-```
 # Laravel-specific ignores
-vendor/
-storage/
-bootstrap/cache/
-public/storage/
+/vendor/
+/storage/
+/bootstrap/cache/*.php
+/public/storage/
 
 # Environment
 .env
 .env.local
 .env.*
+!.env.example
 
 # Logs
 *.log
-storage/logs/*
+/storage/logs/*
 
 # Temporary files
 *.tmp
 *.swp
 
 # Dependencies
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+/node_modules/
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
 
 # IDE
-.vscode/
-.idea/
+/.vscode/
+/.idea/
 *.swp
 *.swo
 
@@ -38,13 +38,12 @@ yarn-error.log*
 Thumbs.db
 
 # Build artifacts
-dist/
-build/
-target/
-```
+/dist/
+/build/
+/target/
 
 resources/scripts/.temp
 
 # Local HTTPS development certificates
-local/ssl/*
-!local/ssl/.gitkeep
+/local/ssl/*
+!/local/ssl/.gitkeep
