@@ -42,7 +42,11 @@ direct_service_writes=$(rg -n --glob '*.php' --glob '!app/Services/Admin/Generic
 [[ -z "$direct_service_writes" ]] && pass "Service layer has no direct model persistence" || { echo "$direct_service_writes" >&2; fail "Direct model persistence detected in Services"; }
 
 view_root="resources/web"
-wrong_views=$(find resources/views -type f 2>/dev/null | wc -l)
+if [[ -d resources/views ]]; then
+  wrong_views=$(find resources/views -type f | wc -l)
+else
+  wrong_views=0
+fi
 [[ "$wrong_views" -eq 0 ]] && pass "No Blade views outside resources/web" || fail "Found $wrong_views Blade/non-Blade files in legacy resources/views"
 
 custom_hash_fail=0
