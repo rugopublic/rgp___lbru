@@ -3,7 +3,6 @@
 namespace App\Notifications\User\Delete;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
@@ -11,7 +10,7 @@ use Illuminate\Notifications\Notification;
  * Notification for users that they have just been permanently deleted.
  * This process is referred to as 'user deletion grace expired'.
  */
-class GraceExpired extends Notification implements ShouldQueue
+class GraceExpired extends Notification
 {
     use Queueable;
 
