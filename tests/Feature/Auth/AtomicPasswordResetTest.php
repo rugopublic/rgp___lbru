@@ -8,7 +8,7 @@ use App\Services\Auth\AuthPasswordResetService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 
-uses(Tests\TestCase::class, RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 it('consumes a password reset token and changes the password atomically', function (): void {
     $user = User::factory()->create();
