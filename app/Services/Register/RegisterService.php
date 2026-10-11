@@ -177,4 +177,5 @@ class RegisterService
 
             return false;
         }
-    }}
+    }
+}

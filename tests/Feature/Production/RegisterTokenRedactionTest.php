@@ -11,7 +11,6 @@ use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Services\Register\RegisterService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
-use RuntimeException;
 
 uses(RefreshDatabase::class);
 
